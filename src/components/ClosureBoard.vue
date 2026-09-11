@@ -20,9 +20,6 @@ const cellMax = computed(() => Math.max(1, ...s.value.matrix.flat()));
 const level = (n: number) => (n <= 0 ? 0 : n >= cellMax.value * 0.67 ? 3 : n >= cellMax.value * 0.34 ? 2 : 1);
 const rowSum = (r: number[]) => r.reduce((a, b) => a + b, 0);
 const colSum = (c: number) => s.value.matrix.reduce((a, r) => a + (r[c] ?? 0), 0);
-// 합계 행·열의 비례 막대 기준 — 행끼리, 열끼리 각각 최댓값
-const rowMax = computed(() => Math.max(1, ...s.value.matrix.map(rowSum)));
-const colMax = computed(() => Math.max(1, ...s.value.byForm.map((_, c) => colSum(c))));
 // 가장 많은 조합 — 한 줄 요약용
 const topCell = computed<{ d: number; f: number; n: number } | null>(() => {
   let best: { d: number; f: number; n: number } | null = null;
@@ -75,19 +72,13 @@ const topCell = computed<{ d: number; f: number; n: number } | null>(() => {
                 <template v-if="n"><b class="num">{{ n }}</b><small class="num">{{ pct(n, s.classified) }}%</small></template>
                 <i v-else aria-hidden="true">·</i>
               </td>
-              <td class="cb-sum">
-                <span class="cb-sum-bar" aria-hidden="true"><i :style="{ width: `${pct(rowSum(row), rowMax)}%` }"></i></span>
-                <b class="num">{{ rowSum(row) }}</b>
-              </td>
+              <td class="cb-sum"><b class="num">{{ rowSum(row) }}</b><small class="num">{{ pct(rowSum(row), s.classified) }}%</small></td>
             </tr>
           </tbody>
           <tfoot>
             <tr>
               <th scope="row">합계</th>
-              <td v-for="(f, c) in s.byForm" :key="f.key" class="cb-sum cb-sum-col">
-                <b class="num">{{ colSum(c) }}</b>
-                <span class="cb-sum-bar" aria-hidden="true"><i :style="{ width: `${pct(colSum(c), colMax)}%` }"></i></span>
-              </td>
+              <td v-for="(f, c) in s.byForm" :key="f.key" class="cb-sum"><b class="num">{{ colSum(c) }}</b><small class="num">{{ pct(colSum(c), s.classified) }}%</small></td>
               <td class="cb-sum cb-grand"><b class="num">{{ s.classified }}</b><small class="num">100%</small></td>
             </tr>
           </tfoot>
@@ -148,19 +139,15 @@ const topCell = computed<{ d: number; f: number; n: number } | null>(() => {
 .cb-cell[data-level="3"] small { color: var(--text); opacity: .75; }
 .cb-cell.cb-top { box-shadow: inset 0 0 0 2px var(--brand-500); }
 
-/* 합계 — 숫자와 비례 막대. 행 합계는 막대가 왼쪽에서 자라고, 열 합계는 숫자 아래에서 자란다 */
+/* 합계 — 숫자(굵게) + 전체 대비 비율(작게)만. 막대는 두지 않는다 (2026-09-11: 수치만 표기) */
 .cb-total-h { color: var(--text-muted) !important; }
-.cb-sum { padding: 8px 10px; color: var(--text-sub); background: var(--surface-2); }
-.cb-sum b { font-size: 13.5px; font-weight: 700; color: var(--text); }
-.cb-sum-bar { display: block; height: 5px; border-radius: 3px; background: var(--line); overflow: hidden; }
-.cb-sum-bar i { display: block; height: 100%; background: var(--ink-300); border-radius: 3px; transform-origin: 0 50%; animation: cb-grow .6s var(--ease-out) both; }
-tbody .cb-sum { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 8px; text-align: right; }
+.cb-sum { padding: 8px 10px; text-align: center; color: var(--text-sub); background: var(--surface-2); }
+.cb-sum b { display: block; font-size: 15px; font-weight: 700; line-height: 1.15; color: var(--text); }
+.cb-sum small { display: block; margin-top: 2px; font-size: 11px; color: var(--text-muted); }
 .cb-matrix tfoot th { padding: 8px 10px; text-align: left; font-size: 12.5px; font-weight: 600; color: var(--text-muted); border-bottom: 0; }
-.cb-matrix tfoot .cb-sum { border-bottom: 0; text-align: center; }
-.cb-sum-col b { display: block; margin-bottom: 4px; }
+.cb-matrix tfoot .cb-sum { border-bottom: 0; }
 .cb-grand { background: var(--brand-50); }
-.cb-grand b { font-size: 15px; display: block; }
-.cb-grand small { font-size: 10.5px; color: var(--text-sub); }
+.cb-grand b { font-size: 16px; }
 .cb-note { margin-top: auto; padding-top: 10px; line-height: 1.5; }
 .cb-note b { color: var(--text); }
 @keyframes cb-in { from { opacity: 0; } to { opacity: 1; } }
