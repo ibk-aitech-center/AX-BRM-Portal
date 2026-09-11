@@ -63,3 +63,6 @@ export const ALLOWED_MIME = new Set([
   'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
   'application/zip', 'application/x-zip-compressed', 'application/octet-stream',
 ]);
+
+// 목업 허용 파일 표는 클라이언트와 공용 — shared/mockupTypes.js (업로드 검증·미리보기 Content-Type 이 같은 표를 쓴다)
+export { MOCKUP_TYPES, MOCKUP_EXTS, mockupTypeOf } from '../shared/mockupTypes.js';

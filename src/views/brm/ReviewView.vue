@@ -417,7 +417,8 @@ async function confirmDelete() {
             <ul v-if="mockups.length" class="stack-sm mb-md">
               <li v-for="a in mockups" :key="a.id" class="att"><span class="badge" data-tone="brand">v{{ a.version }}</span><span class="grow truncate"><b>{{ a.fileName }}</b> <span class="text-xs text-muted">· {{ fmtBytes(a.size) }} · {{ a.uploadedBy.name }} · {{ fmtDate(a.uploadedAt) }}<template v-if="a.note"> · {{ a.note }}</template></span></span><button class="btn btn-primary btn-sm" title="새 창에서 열어요" @click="openMockupWindow(a)">미리보기 ↗</button><RevealButton icon="⬇" label="내려받기" @click="download(a)" /><RevealButton icon="🗑" label="삭제" tone="danger" @click="removeAtt(a)" /></li>
             </ul>
-            <FileUpload :request-id="id" kind="mockup" accept=".html" label="목업 HTML 파일을 올려주세요" hint="필수 아니에요 — 필요할 때만 · .html 파일 하나만 · 같은 요청에 올리면 버전이 자동으로 올라가요 · 20MB 이하" @uploaded="load" />
+            <!-- accept 는 컴포넌트가 shared/mockupTypes.js 로 채운다 — HTML · 이미지 · PDF (2026-09-11 확장) -->
+            <FileUpload :request-id="id" kind="mockup" label="목업 파일을 올려주세요 (HTML · 이미지 · PDF)" hint="필수 아니에요 — 필요할 때만 · 브라우저에서 바로 열리는 파일 하나(html · png · jpg · gif · webp · svg · pdf) · 같은 요청에 올리면 버전이 자동으로 올라가요 · 20MB 이하" @uploaded="load" />
           </section>
 
           <section class="card">

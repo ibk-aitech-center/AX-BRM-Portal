@@ -3,8 +3,11 @@ import { ref } from 'vue';
 import { api, humanMessage } from '@/services/api';
 import { fileToBase64, fmtBytes } from '@/services/format';
 import { toast } from '@/services/toast';
+import { mockupTypeOf, MOCKUP_EXTS, MOCKUP_ACCEPT } from '@shared/mockupTypes.js';
 
 const props = defineProps<{ requestId: string; kind: 'mockup' | 'reference'; accept?: string; label?: string; hint?: string }>();
+/** 목업은 accept 를 넘기지 않아도 허용 표(shared/mockupTypes.js)를 쓴다 */
+const acceptAttr = props.accept ?? (props.kind === 'mockup' ? MOCKUP_ACCEPT : undefined);
 const emit = defineEmits<{ uploaded: [] }>();
 const input = ref<HTMLInputElement | null>(null);
 const file = ref<File | null>(null);
@@ -16,7 +19,8 @@ const MAX = 20 * 1024 * 1024;
 function pick(f: File | undefined) {
   if (!f) return;
   if (f.size > MAX) { toast('파일이 너무 커요. 20MB 이하로 줄여서 올려주세요.', 'danger'); return; }
-  if (props.kind === 'mockup' && !/\.html$/i.test(f.name)) { toast('목업은 확장자가 .html 인 파일만 올릴 수 있어요.', 'warning'); return; }
+  // 목업은 브라우저가 바로 여는 파일만 — 서버(attachments.js)와 같은 표로 검사한다
+  if (props.kind === 'mockup' && !mockupTypeOf(f.name)) { toast(`목업은 브라우저에서 바로 열 수 있는 파일만 올릴 수 있어요 (${MOCKUP_EXTS.join(' ')}).`, 'warning'); return; }
   file.value = f;
 }
 async function upload() {
@@ -24,7 +28,7 @@ async function upload() {
   busy.value = true;
   try {
     const f = file.value;
-    const mime = f.type || (/\.html?$/i.test(f.name) ? 'text/html' : 'application/octet-stream');
+    const mime = f.type || mockupTypeOf(f.name)?.mime.split(';')[0] || 'application/octet-stream';
     await api.post(`/api/requests/${props.requestId}/attachments`, { kind: props.kind, fileName: f.name, mime, contentBase64: await fileToBase64(f), note: note.value });
     toast(props.kind === 'mockup' ? '목업을 올렸어요. 요청자도 바로 볼 수 있어요.' : '파일을 올렸어요.', 'success');
     file.value = null; note.value = ''; if (input.value) input.value.value = '';
@@ -37,7 +41,7 @@ async function upload() {
 <template>
   <div class="upload">
     <label class="dropzone" :class="{ drag }" @dragover.prevent="drag = true" @dragleave="drag = false" @drop.prevent="drag = false; pick($event.dataTransfer?.files?.[0])">
-      <input ref="input" type="file" :accept="accept" class="sr-only" @change="pick(($event.target as HTMLInputElement).files?.[0])" />
+      <input ref="input" type="file" :accept="acceptAttr" class="sr-only" @change="pick(($event.target as HTMLInputElement).files?.[0])" />
       <span aria-hidden="true" style="font-size:24px">{{ kind === 'mockup' ? '🖥️' : '📎' }}</span>
       <span class="fw-600">{{ label || '파일을 끌어다 놓거나 클릭해서 선택' }}</span>
       <span class="hint">{{ hint || '20MB 이하' }}</span>

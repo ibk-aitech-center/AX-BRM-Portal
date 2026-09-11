@@ -5,16 +5,17 @@ import path from 'node:path';
 import { env } from '../env.js';
 import { db, nowIso } from '../db/index.js';
 import { requireAuth, isBrm, canReadRequest, toUser, HttpError } from '../auth.js';
-import { saveBuffer, absPath, removeFile, ALLOWED_MIME } from '../storage.js';
+import { saveBuffer, absPath, removeFile, ALLOWED_MIME, mockupTypeOf, MOCKUP_EXTS } from '../storage.js';
 import { mintTicket, verifyTicket, TICKET_TTL_MS } from '../mockupTicket.js';
 
 export const attachmentsRouter = Router();
 
-const isHtml = (a) => /^text\/html/.test(a.mime || '') || /\.html?$/i.test(a.file_name || '');
+/** 미리보기로 열 수 있는 첨부인지 — 파일명 확장자가 MOCKUP_TYPES 에 있으면 그 타입(mime·label), 아니면 null */
+const viewableType = (a) => mockupTypeOf(a.file_name);
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const VIEW_ERROR = {
   MALFORMED: '열람 링크가 올바르지 않아요.', BAD_SIGNATURE: '열람 링크가 올바르지 않아요.', WRONG_ATTACHMENT: '다른 파일의 링크예요.',
-  EXPIRED: '열람 링크가 만료됐어요 (10분).', NOT_FOUND: '파일을 찾을 수 없어요.', FORBIDDEN: '이 목업을 볼 권한이 없어요.', GONE: '파일이 저장소에 없어요.', NOT_HTML: 'HTML 파일만 열 수 있어요.',
+  EXPIRED: '열람 링크가 만료됐어요 (10분).', NOT_FOUND: '파일을 찾을 수 없어요.', FORBIDDEN: '이 목업을 볼 권한이 없어요.', GONE: '파일이 저장소에 없어요.', NOT_VIEWABLE: '브라우저에서 바로 열 수 있는 파일(HTML · 이미지 · PDF)만 미리 볼 수 있어요.',
 };
 function viewErrorPage(res, status, code) {
   res.status(status).setHeader('Content-Type', 'text/html; charset=utf-8');
@@ -39,10 +40,12 @@ attachmentsRouter.get('/attachments/:id/view', async (req, res) => {
   const userRow = await db.get('SELECT * FROM users WHERE employee_no = ?', [v.employeeNo]);
   const row = await db.get('SELECT * FROM requests WHERE id = ?', [a.request_id]);
   if (!userRow || !row || !canReadRequest(toUser(userRow), row)) return viewErrorPage(res, 403, 'FORBIDDEN');
-  if (!isHtml(a)) return viewErrorPage(res, 400, 'NOT_HTML');
+  const type = viewableType(a);
+  if (!type) return viewErrorPage(res, 400, 'NOT_VIEWABLE');
   const p = absPath(a.storage_path);
   if (!fs.existsSync(p)) return viewErrorPage(res, 410, 'GONE');
-  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  // Content-Type 은 저장된 mime 이 아니라 확장자 표(MOCKUP_TYPES)로 — 이미지·PDF 는 브라우저가 원본 그대로 연다 (2026-09-11 결정: 별도 뷰어 없음)
+  res.setHeader('Content-Type', type.mime);
   res.setHeader('Content-Disposition', `inline; filename*=UTF-8''${encodeURIComponent(a.file_name)}`);
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('Cache-Control', 'no-store');
@@ -89,7 +92,8 @@ attachmentsRouter.post('/requests/:id/attachments', async (req, res) => {
   const buf = Buffer.from(b.contentBase64, 'base64');
   const maxBytes = env.UPLOAD_MAX_MB * 1024 * 1024;
   if (buf.length > maxBytes) throw new HttpError(413, `파일이 너무 커요. ${env.UPLOAD_MAX_MB}MB 이하로 줄여서 올려주세요`, 'TOO_LARGE');
-  if (kind === 'mockup' && !/\.html$/i.test(fileName)) throw new HttpError(400, '목업은 확장자가 .html 인 파일만 올릴 수 있어요', 'MOCKUP_HTML_ONLY');
+  // 목업은 브라우저가 바로 여는 파일만 (HTML · 이미지 · PDF). 동영상·오피스 문서는 불가 — 2026-09-11 결정
+  if (kind === 'mockup' && !mockupTypeOf(fileName)) throw new HttpError(400, `목업은 브라우저에서 바로 열 수 있는 파일만 올릴 수 있어요 (${MOCKUP_EXTS.join(' ')})`, 'MOCKUP_TYPE');
 
   const ext = path.extname(fileName);
   const rel = saveBuffer(buf, ext);
@@ -138,7 +142,7 @@ attachmentsRouter.get('/attachments/:id/download', async (req, res) => {
  */
 attachmentsRouter.post('/attachments/:id/view-ticket', async (req, res) => {
   const a = await loadAttachment(req.params.id, req.user);
-  if (!isHtml(a)) throw new HttpError(400, 'HTML 파일만 미리 볼 수 있어요', 'NOT_HTML');
+  if (!viewableType(a)) throw new HttpError(400, '브라우저에서 바로 열 수 있는 파일(HTML · 이미지 · PDF)만 미리 볼 수 있어요', 'NOT_VIEWABLE');
   const t = mintTicket({ attachmentId: a.id, employeeNo: req.user.employeeNo });
   res.json({ url: `/api/attachments/${a.id}/view?t=${encodeURIComponent(t)}`, expiresInMs: TICKET_TTL_MS, fileName: a.file_name });
 });
