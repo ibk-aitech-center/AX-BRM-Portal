@@ -2,7 +2,8 @@
 import Icon3d from '@/components/Icon3d.vue';
 import { ref, computed, onMounted } from 'vue';
 import { api, humanMessage } from '@/services/api';
-import { canRequest, HQ_ONLY_NOTICE } from '@/services/session';
+import { canRequest } from '@/services/session';
+import HqOnlyNotice from '@/components/HqOnlyNotice.vue';
 import { toast } from '@/services/toast';
 import { isPendingDelete, scheduleDelete, cancelDelete } from '@/services/pendingDelete';
 import type { RequestSummary } from '@/types';
@@ -44,15 +45,7 @@ function removeDraft(r: RequestSummary) {
 
     <!-- 본부부서가 아닌 직원 — 안내를 위에 두고, 규칙 적용 전에 올린 기존 요청은 아래에서 조회만 할 수 있다 (2026-09-11).
          새 상담·이어하기 버튼은 숨기고 서버도 쓰기 API 를 HQ_ONLY 로 막는다 -->
-    <div v-if="!canRequest" class="card hq-notice mb-lg" role="status">
-      <div class="row" style="gap:14px;align-items:flex-start">
-        <span class="hq-emoji" aria-hidden="true">🏢</span>
-        <div>
-          <div class="fw-700">{{ HQ_ONLY_NOTICE.title }}</div>
-          <p v-for="line in HQ_ONLY_NOTICE.lines" :key="line" class="text-sm text-sub hq-line">{{ line }}</p>
-        </div>
-      </div>
-    </div>
+    <HqOnlyNotice v-if="!canRequest" class="mb-lg" />
     <div v-if="loading" class="center" style="padding:64px" role="status"><div class="spinner" style="margin:0 auto" aria-hidden="true"></div></div>
     <div v-else-if="error" class="empty"><div class="empty-emoji" aria-hidden="true">☁️</div><div class="empty-title">{{ error }}</div><button class="btn btn-secondary mt-md" @click="load">다시 불러오기</button></div>
 
@@ -77,7 +70,7 @@ function removeDraft(r: RequestSummary) {
             <p>고민만 있어도 충분해요. 몇 가지 질문에 답하면 첫 상담을 신청할 수 있어요.</p>
             <router-link :to="{ name: 'interview' }" class="btn btn-primary mt-lg">상담 시작하기</router-link>
           </template>
-          <p v-else>이 시스템에서는 새 상담을 신청할 수 없어요. 업무 개선 아이디어는 지식제안을 이용해 주세요.</p>
+          <p v-else>이 시스템에서는 새 상담을 신청할 수 없어요. 영업점 업무 개선 아이디어는 지식제안을 통해 진행해 주세요.</p>
         </div>
         <div v-else class="stack-sm">
           <router-link v-for="r in submitted" :key="r.id" :to="{ name: 'request', params: { id: r.id } }" class="card card-hover req">
@@ -98,9 +91,6 @@ function removeDraft(r: RequestSummary) {
 </template>
 
 <style scoped>
-.hq-notice { background: var(--accent-soft); border-color: transparent; }
-.hq-emoji { font-size: 28px; line-height: 1; }
-.hq-line { line-height: 1.6; margin: 4px 0 0; }
 .req { display: block; color: inherit; }
 .req:hover { text-decoration: none; }
 .req-grid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 24px; align-items: center; }

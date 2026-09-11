@@ -12,7 +12,7 @@ export interface User {
 /** 요청 자격이 없는 직원에게 보여 주는 안내 — 랜딩 모달·내 요청 화면이 같은 문구를 쓴다 */
 export const HQ_ONLY_NOTICE = {
   title: '본부부서 대상 시스템이에요',
-  lines: ['AX-BRM 포탈은 본부부서를 대상으로 운영되는 시스템이에요.', '업무 개선 아이디어는 지식제안을 통해 진행해 주세요.'],
+  lines: ['AX-BRM 포탈은 본부부서를 대상으로 운영되는 시스템이에요.', '영업점 업무 개선 아이디어는 지식제안을 통해 진행해 주세요.'],
 } as const;
 
 type Phase = 'booting' | 'ready' | 'error' | 'loop' | 'expired';

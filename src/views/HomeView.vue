@@ -2,8 +2,8 @@
 import Icon3d from '@/components/Icon3d.vue';
 import { ref, onMounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { session, canRequest, HQ_ONLY_NOTICE } from '@/services/session';
-import AppModal from '@/components/AppModal.vue';
+import { session, canRequest } from '@/services/session';
+import HqOnlyNotice from '@/components/HqOnlyNotice.vue';
 import { api } from '@/services/api';
 import { isPendingDelete } from '@/services/pendingDelete';
 import { PRESETS } from '@shared/questions.js';
@@ -235,16 +235,11 @@ const flow = [
     </footer>
 
     <!-- 본부부서가 아닌 직원 — 상담 시작·프리셋 카드·이어하기 대신 안내만. 서버(HQ_ONLY)가 같은 규칙으로 쓰기 API 를 막는다 -->
-    <AppModal v-if="hqNoticeOpen" :title="HQ_ONLY_NOTICE.title" @close="hqNoticeOpen = false">
-      <p v-for="line in HQ_ONLY_NOTICE.lines" :key="line" class="text-sm hq-line">{{ line }}</p>
-      <template #foot><button class="btn btn-primary" @click="hqNoticeOpen = false">확인</button></template>
-    </AppModal>
+    <HqOnlyNotice v-if="hqNoticeOpen" mode="dialog" @close="hqNoticeOpen = false" />
   </div>
 </template>
 
 <style scoped>
-.hq-line { line-height: 1.7; }
-.hq-line + .hq-line { margin-top: 6px; }
 .hero { padding: 56px 0 40px; }
 .hero-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: 40px; align-items: center; }
 .hero-title { font-size: clamp(30px, 4.2vw, 46px); line-height: 1.25; margin: 14px 0 18px; color: var(--ink-900); text-wrap: initial; }
