@@ -66,7 +66,7 @@ export function normalizeHrRow(row) {
  * 미러에 없는 직원(외주·아직 동기화 전)은 자격 없음. brm·admin 도 예외 없이 같은 규칙이다 (1094 는 본부라 자연히 통과).
  * ⚠ 조직개편 시 ADMIN_*·BRM_DEPT_CODES 와 함께 이 상수도 확인해야 한다.
  */
-export const HQ_OGZN_ATTCDS = ['0001', '0002', '0003', '0004', '0005', '0007', '0008', '0031'];
+export const HQ_OGZN_ATTCDS = ['0001', '0002', '0003', '0004', '0005', '0007', '0031']; // 0008 은 2026-09-11 제외
 const HQ_OGZN_ATTCD_SET = new Set(HQ_OGZN_ATTCDS);
 
 /** 조직속성코드 1개가 본부부서인지. null/빈 값은 false. @param {unknown} ogznAttcd */

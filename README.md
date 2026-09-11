@@ -49,7 +49,7 @@ npm run typecheck             # vue-tsc
 - **동기화**: 서버 기동 시 미러가 비면 채우고, `HR_DB_HOST` 설정 시 매일 07:00 KST 자동 실행.
   수동/cron: `npm run hr:sync`. 드라이버 `mysql2` 는 dependencies 에 포함(weekly-ai 와 같은 3.x) — 운영에는 `.env` 의 `HR_DB_*` 만 채우면 된다.
   원천 컬럼명(emp_no·emp_nm·abnm_jtm·ducd·blng_brcd·blng_nm·beteam_cd·beteam_nm·ofor_sqc·emp_rost_sqc·ogzn_attcd)은 weekly-ai 의 HR 미러와 동일
-- **본부부서 전용 (2026-09-11)**: `ogzn_attcd`(조직속성코드)가 `HQ_OGZN_ATTCDS`(0001·0002·0003·0004·0005·0007·0008·0031)인 직원만 상담을 요청할 수 있다.
+- **본부부서 전용 (2026-09-11)**: `ogzn_attcd`(조직속성코드)가 `HQ_OGZN_ATTCDS`(0001·0002·0003·0004·0005·0007·0031)인 직원만 상담을 요청할 수 있다.
   판정은 서버가 로그인·API 호출마다 미러를 LEFT JOIN 해 `user.canRequest` 로 내려 주고(역할 무관 — admin·brm 도 같은 규칙, 미러에 없으면 false),
   요청 쓰기 API(생성·초안 저장·신청)는 `requireRequester` 가 403 `HQ_ONLY` 로 막는다. 화면은 랜딩의 상담 시작·프리셋 카드·이어하기와
   `/interview·/summary·/done` 진입을 안내 모달로 돌린다. 내 요청 화면은 안내 배너(본부부서 대상 시스템 · 지식제안으로 진행)를 위에 두고

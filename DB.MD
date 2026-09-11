@@ -1,4 +1,4 @@
-| ogzn_attcd | TEXT | 조직속성코드 — **본부부서 판정**(`HQ_OGZN_ATTCDS`: 0001·0002·0003·0004·0005·0007·0008·0031). 이 값인 직원만 상담을 요청할 수 있다. users 로 복사하지 않고 로그인·API 마다 LEFT JOIN 해 판정 |
+| ogzn_attcd | TEXT | 조직속성코드 — **본부부서 판정**(`HQ_OGZN_ATTCDS`: 0001·0002·0003·0004·0005·0007·0031). 이 값인 직원만 상담을 요청할 수 있다. users 로 복사하지 않고 로그인·API 마다 LEFT JOIN 해 판정 |
 # AX-BRM 데이터베이스 레이아웃
 
 운영 DB: **PostgreSQL** (DB명 `aibrm` / 계정 `aibrm`). 개발 기본은 `node:sqlite` 파일 DB이며 스키마는 양쪽 공용이다

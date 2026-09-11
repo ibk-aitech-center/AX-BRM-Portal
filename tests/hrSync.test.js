@@ -223,3 +223,8 @@ test('첫 로그인 역할은 미러 규칙으로, 관리자는 로그인 전 �
   assert.equal(await provisionUserFromMirror(conn, '000000', 'data_brm'), null);
   await conn.close();
 });
+
+test('조직속성코드 0008 은 본부부서 판정에서 제외된다 (2026-09-11)', () => {
+  assert.equal(isHqOrg('0008'), false);
+  assert.ok(!HQ_OGZN_ATTCDS.includes('0008'));
+});

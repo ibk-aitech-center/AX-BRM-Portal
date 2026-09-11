@@ -9,11 +9,13 @@ import SegControl from '@/components/SegControl.vue';
 import type { SegOption } from '@/components/SegControl.vue';
 import { fmtDate, fmtRelative } from '@/services/format';
 
-type Row = User & { deptCd: string | null; deptNm: string | null; teamCd: string | null; teamNm: string | null; createdAt: string | null; lastLoginAt: string | null; provisioned: boolean };
+type Row = User & { deptCd: string | null; deptNm: string | null; teamCd: string | null; teamNm: string | null; ducd: string | null; ogznAttcd: string | null; createdAt: string | null; lastLoginAt: string | null; provisioned: boolean };
 interface RoleRules {
   admin: { teamCodes: string[]; deptHeads: { deptCode: string; ducd: string; label: string }[]; initialSeed: string[]; seededAt: string | null };
   brm: { deptCodes: string[] };
   dataBrm?: { manual: boolean };
+  /** 상담 요청 자격 — 미러 조직속성코드(본부부서) 목록 */
+  hq: { ogznAttcds: string[] };
 }
 const rules = ref<RoleRules | null>(null);
 
@@ -165,6 +167,9 @@ async function setRole(u: Row, role: string) {
         </ul>
         <p class="text-sub" style="margin-top:6px">규칙에 해당하면 AX-BRM 으로 부여되고, 벗어나면 일반 사용자로 되돌아가요. 미러링 때 <b>전 직원이 로그인 전에 미리 등록</b>되고, 규칙에 맞는 직원은 첫 로그인부터 그 역할이에요.
           여기서 수기로 AX-BRM 을 주거나 일반 사용자로 내려도 <strong>다음 동기화 때 규칙대로 다시 계산</strong>돼요. DATA-BRM 권한은 자동으로 바뀌지 않아요.</p>
+        <p class="fw-600 mt-md">상담 요청 자격 · 본부부서 직원만 (역할과 무관)</p>
+        <p class="text-sub" style="margin-top:4px">HR 미러의 <b>조직속성코드</b>가 <template v-for="(c, i) in rules.hq.ogznAttcds" :key="c"><code class="identifier">{{ c }}</code><template v-if="i < rules.hq.ogznAttcds.length - 1"> · </template></template> 인 직원만 상담을 요청할 수 있어요.
+          그 외(영업점 등)는 로그인은 되지만 안내만 보고 요청을 만들 수 없어요. 미러에 없는 직원도 요청 불가예요. 아래 표의 "조직속성" 열에서 확인할 수 있어요.</p>
         <p class="fw-600 mt-md">DATA-BRM 권한 · 수기로만 관리해요 (조회 전용)</p>
         <p class="text-sub" style="margin-top:4px">데이터 담당 부서 직원에게 이 화면에서 부여해요. "행내 데이터가 필요한가요?"에 <b>네</b> 또는 <b>잘 모르겠어요</b>로 답한 요청만 "데이터 요청" 메뉴에서 <b>조회</b>할 수 있고(AX-BRM 의견·목업·첨부·대화·이력 포함), 의견·상태 등록은 할 수 없어요. 그런 요청이 접수될 때 메신저 알림을 받아요. HR 동기화가 이 권한을 바꾸지 않아요.</p>
         <p class="mt-md" style="color:#A23425"><strong>⚠ 조직개편·담당자 변경 시:</strong> 위 소속코드·직책코드나 담당 체계가 바뀌면
@@ -197,7 +202,7 @@ async function setRole(u: Row, role: string) {
     </div>
     <div class="table-wrap">
       <table class="table">
-        <thead><tr><th v-if="isAdmin" style="width:32px"><span class="sr-only">선택</span></th><th>이름</th><th>사번</th><th>부서코드</th><th>부서명</th><th>팀코드</th><th>팀명</th><th>직책</th><th>역할</th><th class="num">최근 로그인</th></tr></thead>
+        <thead><tr><th v-if="isAdmin" style="width:32px"><span class="sr-only">선택</span></th><th>이름</th><th>사번</th><th>부서코드</th><th>부서명</th><th>팀코드</th><th>팀명</th><th>직책</th><th>직책코드</th><th title="HR 미러 조직속성코드 — 본부부서 코드면 상담을 요청할 수 있어요">조직속성</th><th>역할</th><th class="num">최근 로그인</th></tr></thead>
         <tbody>
           <tr v-for="u in users" :key="u.employeeNo" :data-selected="selected.has(u.employeeNo)">
             <td v-if="isAdmin"><input type="checkbox" :checked="selected.has(u.employeeNo)" :aria-label="`${u.name} 선택`" @change="toggleOne(u.employeeNo)" /></td>
@@ -208,6 +213,9 @@ async function setRole(u: Row, role: string) {
             <td class="identifier text-sm">{{ u.teamCd || '-' }}</td>
             <td class="text-sm">{{ u.teamNm || '-' }}</td>
             <td class="text-sm">{{ u.position || '-' }}</td>
+            <td class="identifier text-sm">{{ u.ducd || '-' }}</td>
+            <!-- 조직속성코드 + 요청 자격 — 영업점 등 비대상 직원이 왜 요청을 못 하는지 이 열에서 바로 읽힌다 (2026-09-11) -->
+            <td class="text-sm nowrap"><span class="identifier">{{ u.ogznAttcd || '-' }}</span> <span class="badge" :data-tone="u.canRequest ? 'success' : 'neutral'" style="margin-left:4px;font-size:10.5px;padding:1px 6px" :title="u.canRequest ? '본부부서 — 상담 요청 가능' : (u.ogznAttcd ? '본부부서 아님 — 상담 요청 불가' : 'HR 미러에 없음 — 상담 요청 불가')">{{ u.canRequest ? '요청 가능' : '요청 불가' }}</span></td>
             <td>
               <select v-if="isAdmin" class="select" style="min-height:36px;padding:6px 10px;width:auto" :value="u.role" :aria-label="`${u.name} 역할`" @change="setRole(u, ($event.target as HTMLSelectElement).value)">
                 <option v-for="(l, k) in ROLE" :key="k" :value="k">{{ l }}</option>

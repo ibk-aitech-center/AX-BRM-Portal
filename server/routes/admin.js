@@ -3,7 +3,7 @@ import { db } from '../db/index.js';
 import { env } from '../env.js';
 import { requireAuth, requireAdmin, toUser, HttpError, ROLES } from '../auth.js';
 import { countResetTargets, resetRequests, RESET_CONFIRM_WORD } from '../resetRequests.js';
-import { MIRROR_TABLE, ADMIN_TEAM_CODES, ADMIN_DEPT_HEAD_RULES, BRM_DEPT_CODES, INITIAL_ADMIN_EMPLOYEE_NOS, getHrSyncStatus, runHrSyncManual, provisionUserFromMirror } from '../hrSync.js';
+import { MIRROR_TABLE, isHqOrg, HQ_OGZN_ATTCDS, ADMIN_TEAM_CODES, ADMIN_DEPT_HEAD_RULES, BRM_DEPT_CODES, INITIAL_ADMIN_EMPLOYEE_NOS, getHrSyncStatus, runHrSyncManual, provisionUserFromMirror } from '../hrSync.js';
 
 export const adminRouter = Router();
 adminRouter.use(requireAuth);
@@ -13,7 +13,7 @@ adminRouter.use(requireAuth);
  * 미러에 없는 사번(미로그인 시드 등)은 SSO 토큰으로 받은 org_cd/org_nm 으로 대신한다.
  */
 const USERS_SELECT = `
-  SELECT u.*, h.ogzn_attcd, h.blng_brcd AS hr_dept_cd, h.blng_nm AS hr_dept_nm, h.beteam_cd AS hr_team_cd, h.beteam_nm AS hr_team_nm
+  SELECT u.*, h.ogzn_attcd, h.ducd AS hr_ducd, h.blng_brcd AS hr_dept_cd, h.blng_nm AS hr_dept_nm, h.beteam_cd AS hr_team_cd, h.beteam_nm AS hr_team_nm
     FROM users u LEFT JOIN ${MIRROR_TABLE} h ON h.emp_no = u.employee_no`;
 const USERS_ORDER = `ORDER BY CASE u.role WHEN 'admin' THEN 0 WHEN 'brm' THEN 1 WHEN 'data_brm' THEN 2 ELSE 3 END, u.name LIMIT 200`;
 
@@ -37,6 +37,8 @@ adminRouter.get('/users', requireAdmin, async (req, res) => {
     deptNm: r.hr_dept_nm ?? r.org_nm ?? null,
     teamCd: r.hr_team_cd ?? null,
     teamNm: r.hr_team_nm ?? null,
+    ducd: r.hr_ducd ?? null,
+    ogznAttcd: r.ogzn_attcd ?? null,
     createdAt: r.created_at,
     lastLoginAt: r.last_login_at,
     provisioned: true,
@@ -50,6 +52,7 @@ adminRouter.get('/users', requireAdmin, async (req, res) => {
     for (const m of mirror) {
       users.push({
         employeeNo: m.emp_no, name: m.emp_nm, orgCd: m.blng_brcd ?? null, orgNm: m.blng_nm ?? null, position: m.abnm_jtm ?? null, role: 'requester',
+        ducd: m.ducd ?? null, ogznAttcd: m.ogzn_attcd ?? null, canRequest: isHqOrg(m.ogzn_attcd),
         deptCd: m.blng_brcd ?? null, deptNm: m.blng_nm ?? null, teamCd: m.beteam_cd ?? null, teamNm: m.beteam_nm ?? null,
         createdAt: null, lastLoginAt: null, provisioned: false,
       });
@@ -115,6 +118,8 @@ adminRouter.get('/role-rules', requireAdmin, async (_req, res) => {
     brm: { deptCodes: BRM_DEPT_CODES },
     // DATA-BRM 은 규칙 없음 — 시스템 담당자가 수기로 부여하고, HR 동기화가 건드리지 않는다
     dataBrm: { manual: true },
+    // 상담 요청 자격 — 역할이 아니라 미러의 조직속성코드로 판정 (2026-09-11)
+    hq: { ogznAttcds: HQ_OGZN_ATTCDS },
   });
 });
 
