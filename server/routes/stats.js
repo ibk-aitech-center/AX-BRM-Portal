@@ -27,6 +27,8 @@ const KST_OFFSET_MS = 9 * 3600 * 1000;
 const kstDayIndex = (iso) => Math.floor((new Date(iso).getTime() + KST_OFFSET_MS) / 86400000);
 const days = (a, b) => kstDayIndex(b) - kstDayIndex(a) + 1;
 const avg = (xs) => (xs.length ? Math.round((xs.reduce((s, x) => s + x, 0) / xs.length) * 10) / 10 : null);
+/** 의견 없이 끝난 건은 '첫 의견 대기'로 세지 않는다 */
+const CLOSED_STATUSES = new Set(['done', 'guided', 'rejected']);
 
 async function loadRows(q) {
   const { from, to } = range(q);
@@ -57,6 +59,7 @@ const progress = (rs) => ({
 
 statsRouter.get('/', async (req, res) => {
   const { from, to, rows, reviews, history } = await loadRows(req.query);
+  const nowIso = new Date().toISOString();
   const firstReview = new Map();
   for (const r of reviews) if (!firstReview.has(r.request_id)) firstReview.set(r.request_id, r.created_at);
   const doneAt = new Map();
@@ -76,7 +79,10 @@ statsRouter.get('/', async (req, res) => {
       guided: rows.filter((r) => r.status === 'guided').length,
       awaiting: rows.filter((r) => r.status === 'submitted').length,
       stalled,
-      avgFirstReviewDays: avg(rows.filter((r) => firstReview.has(r.id)).map((r) => days(r.submitted_at, firstReview.get(r.id)))),
+      // 첫 의견까지: 의견이 달린 건은 신청→첫 의견, **아직 의견이 없는 진행 중 건은 신청→오늘**로 넣는다 (2026-09-11 결정 — 방치된 건이 평균을 끌어올려 매일 늘어나는 지표).
+      //   의견 없이 종결된 건(반려·완료·안내 종결)은 더 기다리는 게 아니므로 뺀다.
+      avgFirstReviewDays: avg(rows.filter((r) => firstReview.has(r.id) || !CLOSED_STATUSES.has(r.status))
+        .map((r) => days(r.submitted_at, firstReview.get(r.id) ?? nowIso))),
       avgDoneDays: avg(rows.filter((r) => doneAt.has(r.id)).map((r) => days(r.submitted_at, doneAt.get(r.id)))),
     },
     byMonth,

@@ -266,7 +266,7 @@ async function csv() { try { await downloadWithAuth(`/api/stats/export.csv?from=
             </article>
           </section>
 
-          <p class="hint">기준: 신청 일시(submitted_at) · 걸린 일수는 달력 기준으로 당일 처리를 1일로 셈(시각 차이는 세지 않음) · 요청부서는 신청 시점 소속 스냅샷 · 담당자는 현재 지정된 사람 · 목업 제공 = 컨셉 목업 첨부가 있는 건 · 작성 중(draft)은 제외 · 증감은 직전 같은 길이 기간과 비교</p>
+          <p class="hint">기준: 신청 일시(submitted_at) · 걸린 일수는 달력 기준으로 당일 처리를 1일로 셈(시각 차이는 세지 않음) · 첫 의견까지 평균에는 아직 의견이 없는 진행 중 건도 신청일부터 오늘까지로 포함 · 요청부서는 신청 시점 소속 스냅샷 · 담당자는 현재 지정된 사람 · 목업 제공 = 컨셉 목업 첨부가 있는 건 · 작성 중(draft)은 제외 · 증감은 직전 같은 길이 기간과 비교</p>
         </div>
       </Transition>
     </div>
