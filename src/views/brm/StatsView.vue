@@ -26,6 +26,17 @@ import StatusFlow from '@/components/StatusFlow.vue';
 import OrgBoard from '@/components/OrgBoard.vue';
 import AssigneeBoard from '@/components/AssigneeBoard.vue';
 import ClosureBoard from '@/components/ClosureBoard.vue';
+import InfoTip from '@/components/InfoTip.vue';
+
+/** "첫 의견까지" 카드의 산출 근거 — 서버(stats.js firstReviewEnd · days)와 같은 규칙을 말로 쓴 것. 서버 규칙을 바꾸면 여기도 함께 */
+const FIRST_REVIEW_RULES = [
+  '접수된 모든 요청이 한 번씩만 들어가요. 요청마다 끝점을 하나 고릅니다.',
+  '① 검토 의견이 있으면 첫 의견 등록일까지 — 그 뒤의 의견·반려·완료는 세지 않아요.',
+  '② 의견 없이 반려·완료됐으면 종결된 날까지.',
+  '③ 의견 없이 진행 중이면 오늘까지 — 의견이 달릴 때까지 매일 하루씩 늘어요.',
+  '일수는 달력 기준이에요. 당일 처리 1일, 다음 날 2일. 시각 차이는 세지 않아요.',
+  '아래 "완료까지 평균"은 완료된 건만, 신청일부터 완료로 바뀐 날까지예요.',
+] as const;
 
 
 const stats = ref<Stats | null>(null);
@@ -123,7 +134,7 @@ const kpis = computed(() => {
     { l: '완료·종결', v: closedOf(s), u: '건', sub: s.totals.submitted ? `접수의 ${pct(closedOf(s), s.totals.submitted)}%` : '–', delta: delta(closedOf(s), p ? closedOf(prev.value!) : null) },
     // 반려를 타일로 — 접수 = 진행 중 + 완료·종결 + 반려 가 타일 넷으로 바로 맞아떨어진다 (2026-09-08, 5장 구성 · 2026-09-11 보완 요청은 진행 중으로)
     { l: '반려', v: s.totals.stalled, u: '건', sub: s.totals.submitted ? `접수의 ${pct(s.totals.stalled, s.totals.submitted)}%` : '반려 없음', delta: delta(s.totals.stalled, p?.stalled), lowerBetter: true },
-    { l: '첫 의견까지', v: s.totals.avgFirstReviewDays, u: '일', sub: s.totals.avgDoneDays != null ? `완료까지 평균 ${s.totals.avgDoneDays}일` : '완료 사례 없음', delta: delta(s.totals.avgFirstReviewDays, p?.avgFirstReviewDays, '일'), lowerBetter: true },
+    { l: '첫 의견까지', v: s.totals.avgFirstReviewDays, u: '일', sub: s.totals.avgDoneDays != null ? `완료까지 평균 ${s.totals.avgDoneDays}일` : '완료 사례 없음', delta: delta(s.totals.avgFirstReviewDays, p?.avgFirstReviewDays, '일'), lowerBetter: true, info: FIRST_REVIEW_RULES },
   ];
 });
 
@@ -185,8 +196,12 @@ async function csv() { try { await downloadWithAuth(`/api/stats/export.csv?from=
             <article v-for="k in kpis" :key="k.l" class="card kpi" :class="{ 'kpi-warn': k.warn }">
               <div class="kpi-top">
                 <span class="kpi-l">{{ k.l }}</span>
-                <span v-if="k.delta" class="badge kpi-delta" :data-tone="k.delta.up === null ? 'neutral' : (k.delta.up !== k.lowerBetter ? 'brand' : 'neutral')" :title="'이전 같은 길이 기간 대비'">
-                  <template v-if="k.delta.up !== null">{{ k.delta.up ? '▲' : '▼' }}</template> {{ k.delta.text }}
+                <span class="kpi-top-right">
+                  <span v-if="k.delta" class="badge kpi-delta" :data-tone="k.delta.up === null ? 'neutral' : (k.delta.up !== k.lowerBetter ? 'brand' : 'neutral')" :title="'이전 같은 길이 기간 대비'">
+                    <template v-if="k.delta.up !== null">{{ k.delta.up ? '▲' : '▼' }}</template> {{ k.delta.text }}
+                  </span>
+                  <!-- 산출 근거 ⓘ — 숫자가 어떻게 나온 값인지 그 자리에서 읽을 수 있게 (2026-09-11) -->
+                  <InfoTip v-if="k.info" :title="k.l" :lines="k.info" />
                 </span>
               </div>
               <div class="kpi-row">
@@ -305,6 +320,8 @@ async function csv() { try { await downloadWithAuth(`/api/stats/export.csv?from=
 @media (max-width: 560px) { .kpi-grid { grid-template-columns: 1fr; } }
 .kpi { padding: 18px 22px 16px; display: flex; flex-direction: column; gap: 6px; }
 .kpi-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.kpi-top-right { display: inline-flex; align-items: center; gap: 4px; }
+.kpi { overflow: visible; } /* 산출 근거 팝오버가 카드 밖으로 펼쳐진다 */
 .kpi-l { font-size: 13px; font-weight: 600; color: var(--text-sub); }
 .kpi-delta { font-size: 11.5px; padding: 2px 8px; }
 .kpi-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; min-height: 40px; }
