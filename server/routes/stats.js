@@ -64,6 +64,11 @@ statsRouter.get('/', async (req, res) => {
   for (const r of reviews) if (!firstReview.has(r.request_id)) firstReview.set(r.request_id, r.created_at);
   const doneAt = new Map();
   for (const h of history) if (h.to_status === 'done' && !doneAt.has(h.request_id)) doneAt.set(h.request_id, h.changed_at);
+  // 종결 시각(반려·완료·안내 종결로 처음 바뀐 때) — 의견 없이 끝난 건의 "첫 의견까지" 상한. 이력이 없으면 마지막 갱신 시각으로
+  const closedAt = new Map();
+  for (const h of history) if (CLOSED_STATUSES.has(h.to_status) && !closedAt.has(h.request_id)) closedAt.set(h.request_id, h.changed_at);
+  /** 첫 의견까지의 끝점 — 의견이 있으면 그 시각, 없는데 종결됐으면 종결 시각, 아니면 오늘 */
+  const firstReviewEnd = (r) => firstReview.get(r.id) ?? (CLOSED_STATUSES.has(r.status) ? (closedAt.get(r.id) ?? r.closed_at ?? r.updated_at) : nowIso);
 
   // 진행 중 = 상태 구성 패널의 '진행 중' 묶음과 같은 정의(신청 완료·검토 중·보완 요청·진행 확정·개발 중). 반려만 stalled 로 따로 —
   // 접수 = 진행 중 + 완료·종결 + 반려 가 항상 맞아떨어지게 (2026-09-08 정합성 점검 · 2026-09-11 보완 요청을 진행 중으로)
@@ -79,10 +84,9 @@ statsRouter.get('/', async (req, res) => {
       guided: rows.filter((r) => r.status === 'guided').length,
       awaiting: rows.filter((r) => r.status === 'submitted').length,
       stalled,
-      // 첫 의견까지: 의견이 달린 건은 신청→첫 의견, **아직 의견이 없는 진행 중 건은 신청→오늘**로 넣는다 (2026-09-11 결정 — 방치된 건이 평균을 끌어올려 매일 늘어나는 지표).
-      //   의견 없이 종결된 건(반려·완료·안내 종결)은 더 기다리는 게 아니므로 뺀다.
-      avgFirstReviewDays: avg(rows.filter((r) => firstReview.has(r.id) || !CLOSED_STATUSES.has(r.status))
-        .map((r) => days(r.submitted_at, firstReview.get(r.id) ?? nowIso))),
+      // 첫 의견까지: **접수된 전 건**이 들어간다 (2026-09-11 결정). 의견이 달린 건은 신청→첫 의견, 의견 없이 종결된 건은 신청→종결일,
+      //   아직 의견이 없는 진행 중 건은 신청→오늘 — 방치된 건이 평균을 끌어올려 매일 늘어나는 지표.
+      avgFirstReviewDays: avg(rows.map((r) => days(r.submitted_at, firstReviewEnd(r)))),
       avgDoneDays: avg(rows.filter((r) => doneAt.has(r.id)).map((r) => days(r.submitted_at, doneAt.get(r.id)))),
     },
     byMonth,
