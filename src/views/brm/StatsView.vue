@@ -113,8 +113,6 @@ function delta(cur: number | null, pv: number | null | undefined, unit = '건'):
   const d = Math.round((cur - pv) * 10) / 10;
   return { d, up: d === 0 ? null : d > 0, text: d === 0 ? `이전과 같음` : `${d > 0 ? '+' : ''}${d}${unit}` };
 }
-/** 분포 블록의 모수 — 접수 총계와 다를 때(판정이 없는 옛 건 등) 제목에 밝힌다 */
-const mixSum = (items: { n: number }[]) => items.reduce((n, b) => n + b.n, 0);
 const kpis = computed(() => {
   const s = stats.value; if (!s) return [];
   const p = prev.value?.totals;
@@ -260,8 +258,8 @@ async function csv() { try { await downloadWithAuth(`/api/stats/export.csv?from=
               <div class="mix">
                 <section class="mix-block" aria-labelledby="mix-channel"><h3 id="mix-channel" class="mix-title">요청 계기</h3><TickRows :items="stats.byChannel" :max="mixMax" :unit-max="MIX_UNIT_MAX" /></section>
                 <section class="mix-block" aria-labelledby="mix-track"><h3 id="mix-track" class="mix-title">지원 유형</h3><TickRows :items="stats.byTrack" :max="mixMax" :unit-max="MIX_UNIT_MAX" /></section>
-                <section class="mix-block" aria-labelledby="mix-datacase"><h3 id="mix-datacase" class="mix-title">데이터 케이스 <span class="text-xs text-muted">(데이터 판정이 있는 {{ mixSum(stats.byDataCase) }}건 기준)</span></h3><TickRows :items="stats.byDataCase" :max="mixMax" :unit-max="MIX_UNIT_MAX" empty="개발 검증 유형의 요청이 없어요" /></section>
-                <section class="mix-block" aria-labelledby="mix-integration"><h3 id="mix-integration" class="mix-title">데이터 연계 방식 <span class="text-xs text-muted">(연계 판정이 있는 {{ mixSum(stats.byIntegration) }}건 기준)</span></h3><TickRows :items="stats.byIntegration" :max="mixMax" :unit-max="MIX_UNIT_MAX" empty="데이터 연계 요청이 없어요" /></section>
+                <section class="mix-block" aria-labelledby="mix-datacase"><h3 id="mix-datacase" class="mix-title">데이터 케이스</h3><TickRows :items="stats.byDataCase" :max="mixMax" :unit-max="MIX_UNIT_MAX" empty="개발 검증 유형의 요청이 없어요" /></section>
+                <section class="mix-block" aria-labelledby="mix-integration"><h3 id="mix-integration" class="mix-title">데이터 연계 방식</h3><TickRows :items="stats.byIntegration" :max="mixMax" :unit-max="MIX_UNIT_MAX" empty="데이터 연계 요청이 없어요" /></section>
               </div>
             </article>
           </section>

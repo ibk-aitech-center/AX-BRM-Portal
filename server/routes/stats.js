@@ -128,11 +128,14 @@ statsRouter.get('/', async (req, res) => {
     })(),
     byChannel: count(rows, (r) => r.channel).map((x) => ({ ...x, label: CHANNEL_LABEL[x.key] || x.key })),
     byTrack: count(rows, (r) => r.j.track).map((x) => ({ ...x, label: TRACK_LABEL[x.key]?.label || x.key })),
-    // 데이터 케이스는 건수순이 아니라 A → B → C 고정 순서 (케이스 자체가 순서를 가진 분류라 위치가 바뀌면 읽기 어렵다)
-    byDataCase: count(rows.filter((r) => r.j.dataCase), (r) => r.j.dataCase)
-      .sort((x, y) => String(x.key).localeCompare(String(y.key)))
-      .map((x) => ({ ...x, label: DATACASE_LABEL[x.key]?.label || x.key })),
-    byIntegration: count(rows.filter((r) => r.j.integration), (r) => r.j.integration).map((x) => ({ ...x, label: INTEGRATION_LABEL[x.key]?.label || x.key })),
+    // 데이터 케이스는 건수순이 아니라 A → B → C 고정 순서 (케이스 자체가 순서를 가진 분류라 위치가 바뀌면 읽기 어렵다).
+    // 판정이 없는 건(AI 활용 갈래처럼 데이터 질문을 건너뛴 요청)도 'none' 으로 세어 네 분포의 합이 접수 건수와 같게 한다 (2026-09-11) — 맨 뒤.
+    byDataCase: count(rows, (r) => r.j.dataCase || 'none')
+      .sort((x, y) => Number(x.key === 'none') - Number(y.key === 'none') || String(x.key).localeCompare(String(y.key)))
+      .map((x) => ({ ...x, label: x.key === 'none' ? '데이터 판정 없음' : DATACASE_LABEL[x.key]?.label || x.key })),
+    byIntegration: count(rows, (r) => r.j.integration || 'unset')
+      .sort((x, y) => Number(x.key === 'unset') - Number(y.key === 'unset') || y.n - x.n)
+      .map((x) => ({ ...x, label: x.key === 'unset' ? '연계 판정 없음' : INTEGRATION_LABEL[x.key]?.label || x.key })),
   });
 });
 
