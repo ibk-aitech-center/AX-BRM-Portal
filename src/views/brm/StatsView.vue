@@ -27,16 +27,19 @@ import OrgBoard from '@/components/OrgBoard.vue';
 import AssigneeBoard from '@/components/AssigneeBoard.vue';
 import ClosureBoard from '@/components/ClosureBoard.vue';
 import InfoTip from '@/components/InfoTip.vue';
+import type { TipSection } from '@/components/InfoTip.vue';
 
 /** "첫 의견까지" 카드의 산출 근거 — 서버(stats.js firstReviewEnd · days)와 같은 규칙을 말로 쓴 것. 서버 규칙을 바꾸면 여기도 함께 */
-const FIRST_REVIEW_RULES = [
-  '접수된 모든 요청이 한 번씩만 들어가요. 요청마다 끝점을 하나 고릅니다.',
-  '① 검토 의견이 있으면 첫 의견 등록일까지 — 그 뒤의 의견·반려·완료는 세지 않아요.',
-  '② 의견 없이 반려·완료됐으면 종결된 날까지.',
-  '③ 의견 없이 진행 중이면 오늘까지 — 의견이 달릴 때까지 매일 하루씩 늘어요.',
-  '일수는 달력 기준이에요. 당일 처리 1일, 다음 날 2일. 시각 차이는 세지 않아요.',
-  '아래 "완료까지 평균"은 완료된 건만, 신청일부터 완료로 바뀐 날까지예요.',
-] as const;
+const FIRST_REVIEW_RULES: readonly TipSection[] = [
+  { label: '들어가는 건', text: '접수된 모든 요청이 한 번씩 들어가요. 요청마다 아래 셋 중 끝점 하나를 고릅니다.' },
+  { label: '신청일부터 어디까지 세나', steps: [
+    { k: '검토 의견이 있으면', v: '첫 의견 등록일까지. 그 뒤의 의견·반려·완료는 세지 않아요.' },
+    { k: '의견 없이 반려·완료됐으면', v: '종결된 날까지.' },
+    { k: '의견 없이 진행 중이면', v: '오늘까지. 의견이 달릴 때까지 매일 하루씩 늘어요.' },
+  ] },
+  { label: '일수 계산', text: '달력 기준이에요. 당일 처리 1일, 다음 날 2일. 시각 차이는 세지 않아요.' },
+  { label: '완료까지 평균', text: '완료된 건만, 신청일부터 완료로 바뀐 날까지예요.', note: true },
+];
 
 
 const stats = ref<Stats | null>(null);
@@ -201,7 +204,7 @@ async function csv() { try { await downloadWithAuth(`/api/stats/export.csv?from=
                     <template v-if="k.delta.up !== null">{{ k.delta.up ? '▲' : '▼' }}</template> {{ k.delta.text }}
                   </span>
                   <!-- 산출 근거 ⓘ — 숫자가 어떻게 나온 값인지 그 자리에서 읽을 수 있게 (2026-09-11) -->
-                  <InfoTip v-if="k.info" :title="k.l" :lines="k.info" />
+                  <InfoTip v-if="k.info" :title="k.l" :sections="k.info" />
                 </span>
               </div>
               <div class="kpi-row">
