@@ -1,0 +1,141 @@
+server:
+  port: 9001
+  tomcat:
+    connection-timeout: 1800000
+
+---
+spring:
+  profiles: default
+  datasource:
+    url: jdbc:mariadb://10.40.2.13:31682/aiplatform
+    username: ENC(KUh+Fmv2Iz3/ukTomOdkk0OP2aFdR0k7)
+    password: ENC(ZjEVfG9G7+ezMtLDbcQwvEkx1e1vgJvS)
+    driver-class-name: org.mariadb.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+  servlet:
+    multipart:
+      maxFileSize: 100MB
+      maxRequestSize: 100MB
+
+upload:
+  directory:
+    notice: /files/notice
+    trend: /files/trend
+    aiboard: /files/aiboard
+    ailibrary: /files/attach
+    ailibrary-sql: /files/ailibrary/sql
+    ailibrary-code: /files/ailibrary/code
+    situation: /files/situation/attach
+    situation-intro: /files/situation/intro
+    situation-process: /files/situation/process
+    saction: /files/saction
+    aiexperience: /files/aiexperience
+    ibkmltycardaidesign: /files/ibkmltycardaidesign
+    aigovernance-notice: /files/aigovernance/notice
+    aidevguide-risk-grade: /files/aidevguide/riskgrade
+    aidevguide-risk-grade-review: /files/aidevguide/riskgradereview
+    aidevguide-adoption: /files/aidevguide/adoption
+    aibrm-request: /files/aibrm/request
+    aibrm-process: /files/aibrm/process
+  allow:
+    ext:
+      notice: xls,xlsx,hwp,hwpx,pdf,pptx,zip
+      trend: xls,xlsx,hwp,pdf,pptx,zip
+      aiboard: xls,xlsx,hwp,hwpx,pdf,pptx,zip
+      ailibrary: xls,xlsx,hwp,hwpx,pdf,pptx,zip
+      ailibrary-sql: sql,pql,zip
+      ailibrary-cd: py,h5,zip
+      situation: xls,xlsx,hwp,hwpx,pdf,pptx,zip
+      situation-intro: xls,xlsx,hwp,hwpx,pdf,pptx,zip
+      situation-process: xls,xlsx,hwp,hwpx,pdf,pptx,zip
+      saction: xls,xlsx,hwp,pdf,pptx,zip
+      aiexperience: txt, pdf
+      ibkmltycardaidesign: jpg, jpeg, png, gif, bmp, pjp, pjpeg, jfif, zip
+      aigovernance-notice: xls,xlsx,hwp,hwpx,pdf,pptx,zip
+    size:
+      notice: 10485760
+      trend: 10485760
+      aiboard: 10485760
+      ailibrary: 10485760
+      ailibrary-cd: 5242880
+      ailibrary-sql: 5242880
+      situation: 10485760
+      situation-intro: 5242880
+      situation-process: 5242880
+      saction: 10485760
+      aiexperience: 10485760
+      ibkmltycardaidesign: 10485760
+      aigovernance-notice: 10485760
+    count:
+      notice: 3
+      trend: 3
+      aiboard: 3
+      ailibrary: 3
+      situation: 3
+      ibkmltycardaidesign: 1
+      aigovernance-notice: 3
+template:
+  directory: /files/situation
+  filename: template.zip
+alarm:
+  url: http://172.18.76.21:8010/servlet/AnnounceService
+  srvCode: AIHAIH
+otp:
+  url: http://172.18.121.99/otp/otpVerify.jsp
+platform:
+  url: http://dlstudio.aicentroibk.ai/hub-api
+  sign: ibkJWTSecretKey4321!
+  token: eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJkZXB0X25tIjoiSVTquLDtmo3rtoDshJwiLCJhdWQiOlsic2hpbmhhbiJdLCJ1c2VyX2lkIjoiSUJLX0FJUG9ydGFsIiwidXNlcl9uYW1lIjoiSUJLX0FJUG9ydGFsIiwic2NvcGUiOlsicmVhZCJdLCJuYW1lIjoi7KCE7LK06rSA66as7J6QIiwiZXhwIjoyMDEzMTQwODkzLCJhdXRob3JpdGllcyI6WyJST0xFX0FETUlOIl0sImp0aSI6ImYzMDdlNWU0LTQ4MmYtNGQ5ZC1iZmMxLTkzZmQ2ZDQ2MGI5NyIsImNsaWVudF9pZCI6ImFpY2VudHJvLWFwcCJ9.JDeAXdgBhE8-9AEHt-3ICcmmZXGqcMy1WJdqk1RMEXuUs4ymZKDjNn9Sw54c_bGcMCCKFYFpWegm2ubRSloV1DIVfRa9S8jK26lZ6htggGuYfjEGDh3PnYsm2OdbdEQRD1Ci0xdgd6nIu_hIP7MIGkJnVEUgbsFnM8MRLfsEzc7BbECZdz5ivhGjfdXo3nz9c2lAjZhYEgq8AhbW4Z3HuYQxBrGAfagXWPaEdwFC9kAQ30vSEqeOMQc5XwKv1s58-690l6mcIo8SnhP05Fl7p8AvqPhQKpFGGaKBizoh51ykKTd6ehcm2gGeZb-2IGL_2Zd-8KB0zNS8maZ2WVXdnA
+exp:
+  translate-url: http://transai.arcapi.aiplatform.ibk.co.kr/experientialModel/translation
+  generator-url: http://61.79.200.174:8000/experientialModel/imagegenerator
+  generator-example1: /files/exam1.png
+  generator-example2: /files/exam2.png
+  generator-example3: /files/exam3.p1ng
+  generator-example4: /files/exam4.png
+
+  llm-url: http://solar.arcapi.devaiplatform.ibk.co.kr/run
+ailab:
+  industry-code-url: http://gpsqe8atb7.arcapi.aiplatform.ibk.co.kr/run
+  nts-industry-code-url: http://tlz84pv2gu.arcapi.aiplatform.ibk.co.kr/run
+  in-rm-acnt-mtch-url: http://1qtc7j5gvi.arcapi.aiplatform.ibk.co.kr/match_account
+aiagent:
+  aiagent-token-url: http://10.40.24.21:32535/webhook/ff4ec97d-0cb2-4dc8-af66-94218e33ed4d
+  aiagent-api-key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3NTVmYTNhZi1jZDFmLTRkN2UtYmI5Zi1hYmMwZjliODAxNDYiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwiaWF0IjoxNzQ0NTg3MDAzfQ.0Vb50HsNimnyH6Mb6EwwQCU7sjsM94ddy9MbvO-Wvb8
+aiplcymtch:
+  url: http://sxb8xp5im1.arcapi.devaiplatform.ibk.co.kr/match
+compinfo:
+  url: http://oxsggsrpuc.arcapi.aiplatform.ibk.co.kr/run
+fdsDashboard:
+  info-url: http://fraudds.arcapi.devaiplatform.ibk.co.kr/constants
+  check-url: http://fraudds.arcapi.devaiplatform.ibk.co.kr/risk_grade
+sms:
+  url: http://172.18.90.35:6500/send
+portal:
+  url: http://lclaiportal.ibk.co.kr:8080
+jwt:
+  sign: 3rRV1ccMTnixETUvcxKPpKnhbzgFQou8a
+prd:
+  mode: true
+logging:
+  level:
+    ROOT: ERROR
+    kr.co.ibk.aihub: ERROR
+    org.springframework.jdbc.core: DEBUG
+    org.mariadb.jdbc: DEBUG
+    org.springframework.jdbc.core.JdbcTemplate: DEBUG
+    org.springframework.jdbc.core.StatementCreatorUtils: DEBUG
+n8nWebhook:
+  url: http://10.40.2.13:32535/webhook/ad718061-810b-40f5-b55e-f4cae1829b3b
+  token: YWlodWJfZ2V0X2FwcHJvdmFsOmliayExMjM0
+jasypt:
+  password: BROKERING_MINING

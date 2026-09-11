@@ -1,0 +1,17 @@
+# 빌드 컨텍스트 최소화 — 이미지에 필요한 것: package*.json, server/, shared/, dist/, docker/
+node_modules
+data
+.git
+tests
+ai-brm-dist
+weekly-ai*
+*.tar
+*.zip
+*.log
+public
+src
+*.md
+*.MD
+flow-standalone.html
+preview.html
+ai-brm-roadmap-*.html

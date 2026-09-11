@@ -1,0 +1,94 @@
+/* ═══════════════════════════════════════════════════════════════
+   1. tokens.css — 디자인 토큰 (DESIGN_GUIDELINES §2 골격 + AX-BRM 브랜드)
+   브랜드: 딥 틸 (레퍼런스 User Interviews #1c5d5f · 로드맵 --hub #0A6772 계열)
+   캔버스: 따뜻한 오프화이트 종이. 파스텔 카드 2색(민트/블러시).
+   컴포넌트는 팔레트를 직접 쓰지 않고 역할 토큰(--bg, --surface, --text…)만 참조한다.
+   ═══════════════════════════════════════════════════════════════ */
+:root {
+  /* ── 브랜드 (딥 틸) ── */
+  --brand-50:  #E8F3F2;
+  --brand-100: #D2E7E5;
+  --brand-300: #7FB7B4;
+  --brand-500: #17545A;   /* 기본 강조색 — 로고 마크 원과 같은 딥 틸. 화면당 1~2회. 흰 글자 대비 7.6:1 */
+  --brand-600: #12464B;   /* hover/active */
+  --brand-700: #0E383C;
+
+  /* ── 파스텔 액센트 (카드 표면 전용 — 텍스트·버튼에 쓰지 않음) ── */
+  --mint:       #E4F0F1;  /* 카드 민트 */
+  --mint-deep:  #65B8A2;  /* 세이지 — 장식 선·아이콘 스트로크 */
+  --blush:      #F2E8E2;  /* 카드 블러시 */
+  --blush-deep: #D6AEC1;  /* 더스티 로즈 — 장식 */
+  --sand:       #FBF5EE;  /* 따뜻한 띠 배경 */
+  --marker:     #FFE95C;  /* 형광펜 옐로 — 글자 뒤 강조 띠 전용(multiply 로 겹침) */
+
+  /* ── 뉴트럴 (따뜻한 잉크 램프) ── */
+  --ink-900: #1B2B2C;
+  --ink-700: #41585E;
+  --ink-500: #7A8E93;     /* 장식적 보조만 — 본문 금지(AA 미달) */
+  --ink-300: #C9D6D6;
+  --ink-200: #DCE6E5;     /* 헤어라인 */
+  --ink-100: #EEF3F2;
+  --ink-50:  #F4F8F7;     /* 페이지 캔버스 (따뜻한 오프화이트) */
+
+  /* ── 시맨틱 (배경 + 본색 페어) ── */
+  --success: #286346;  --success-bg: #DBEBE1;
+  --warning: #825E10;  --warning-bg: #F4E9CF;  --warning-fill: #E9BE3A; /* 채움(점·표시)용 노랑 — 글자에는 쓰지 않는다 */
+  --danger:  #A23425;  --danger-bg:  #F6E2DE;
+  --info:    #384982;  --info-bg:    #DFE4F1;
+
+  /* ── 역할 토큰 (컴포넌트는 이것만 참조) ── */
+  --bg:         var(--ink-50);
+  --surface:    #FFFFFF;
+  --surface-2:  var(--ink-100);
+  --line:       var(--ink-200);
+  --line-strong: var(--ink-300);
+  --text:       var(--ink-900);
+  --text-sub:   var(--ink-700);
+  --text-muted: #5E7379;   /* 캡션용 — 흰 배경 대비 5.0:1 (AA 통과) */
+  --accent:     var(--brand-500);
+  --accent-hover: var(--brand-600);
+  --accent-soft: var(--brand-50);
+  --on-accent:  #FFFFFF;
+
+  /* ── 간격 (4px) ── */
+  --space-xs: 4px;  --space-sm: 8px;  --space-md: 16px;
+  --space-lg: 24px; --space-xl: 32px; --space-xxl: 48px; --space-3xl: 80px;
+
+  /* ── 라운드 ── */
+  --radius-sm: 10px;      /* 입력/작은 버튼 */
+  --radius-md: 16px;      /* 카드 */
+  --radius-lg: 24px;      /* 히어로 카드·모달 */
+  --radius-full: 9999px;  /* 필 버튼·칩 */
+
+  /* ── 그림자 — 레퍼런스 원칙 "그림자 대신 헤어라인". 모달·토스트만 예외 ── */
+  --shadow-sm:       0 1px 2px rgba(27,43,44,.04);
+  --shadow-card:     0 1px 3px rgba(27,43,44,.05);
+  --shadow-elevated: 0 6px 20px rgba(27,43,44,.10);
+  --shadow-modal:    0 20px 60px rgba(27,43,44,.28);
+  /* 강조 버튼 전용 — 배경색을 띤 부드러운 그림자. 딱딱한 오프셋 선(0 2px 0)은 필 아래에 어두운 띠로 보여 쓰지 않는다 */
+  --shadow-accent:       0 1px 2px rgba(14,56,60,.16), 0 4px 12px rgba(23,84,90,.14);
+  --shadow-accent-hover: 0 2px 4px rgba(14,56,60,.18), 0 8px 20px rgba(23,84,90,.20);
+
+  /* ── 모션 — 어휘 3개만: press(눌림) · pop(선택 스프링) · glide(상태 전환). 호버는 색/테두리만, 위치 이동·확대 금지 ── */
+  --ease-out:    cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);   /* pop — 선택·확정 순간에만 */
+  --ease-glide:  cubic-bezier(0.16, 1, 0.3, 1);       /* glide — 진행·상태 전환 감속 */
+  --ease-overshoot: cubic-bezier(0.18, 1.25, 0.4, 1); /* 토스트 등장 */
+  --dur-press: 0.08s;
+  --dur-pop:   0.4s;
+  --transition-fast: 0.15s ease;
+  --transition:      0.3s var(--ease-out);
+
+  /* ── z-index ── */
+  --z-nav: 100; --z-panel: 150; --z-modal: 200; --z-toast: 300; --z-loading: 400;
+
+  /* ── 폰트 (전부 로컬 번들 — 폐쇄망) ── */
+  --font: "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --font-serif: "Noto Serif KR Variable", "Noto Serif KR", "MaruBuri", "Nanum Myeongjo", serif;
+  --font-mono: "D2Coding", "JetBrains Mono", Consolas, ui-monospace, monospace;
+
+  /* ── 레이아웃 ── */
+  --content-max: 1200px;
+  --column-max: 880px;
+  --sidebar-w: 264px;
+}

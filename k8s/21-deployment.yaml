@@ -1,0 +1,50 @@
+# AX-BRM — 단일 컨테이너(nginx 80 + Node API 3000, /app/start.sh 가 둘 다 기동). 이미지: ai-brm:<ver> (build.sh 또는 Dockerfile 로 빌드)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-brm
+  labels: { app.kubernetes.io/name: ai-brm, app.kubernetes.io/part-of: ai-brm }
+spec:
+  replicas: 1                  # 첨부 PVC 가 RWO — 1개 고정
+  strategy: { type: Recreate } # 새 파드가 볼륨을 이어받도록 이전 파드를 먼저 내린다
+  selector:
+    matchLabels: { app.kubernetes.io/name: ai-brm }
+  template:
+    metadata:
+      labels: { app.kubernetes.io/name: ai-brm, app.kubernetes.io/part-of: ai-brm }
+    spec:
+      # imagePullSecrets: [{ name: <registry-secret> }]
+      containers:
+        - name: app
+          image: <registry>/ai-brm:1.3       # 재배포 시 태그만 갱신
+          imagePullPolicy: IfNotPresent
+          # 플랫폼 템플릿이 args: ["/app/start.sh"] 를 넣어도 되고, 비워 두면 이미지 CMD 가 같은 스크립트를 부른다
+          ports: [{ name: http, containerPort: 80 }]
+          env:
+            - { name: NODE_ENV, value: production }
+            - { name: PORT, value: "3000" }
+            - { name: UPLOAD_DIR, value: /app/data/uploads }
+          envFrom:
+            - secretRef: { name: ai-brm-secret }
+            - configMapRef: { name: ai-brm-config }
+          volumeMounts:
+            - { name: data, mountPath: /app/data }
+          # /api/health 는 nginx → node 로 지나가므로 둘 다 살아 있어야 200. DB 응답 + 첨부 폴더 쓰기 가능일 때만 200(아니면 503)
+          startupProbe:
+            httpGet: { path: /api/health, port: http }
+            periodSeconds: 5
+            failureThreshold: 24         # 최대 2분 (첫 기동 시 스키마 마이그레이션)
+          readinessProbe:
+            httpGet: { path: /api/health, port: http }
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:                 # DB 장애로 파드까지 재시작되지 않게 프로세스 생존만 본다 (node·nginx 중 하나가 죽으면 start.sh 가 스스로 내린다)
+            tcpSocket: { port: http }
+            periodSeconds: 20
+            failureThreshold: 3
+          resources:
+            requests: { cpu: 250m, memory: 320Mi }
+            limits:   { cpu: "1",  memory: 1Gi }
+      volumes:
+        - name: data
+          persistentVolumeClaim: { claimName: ai-brm-data }

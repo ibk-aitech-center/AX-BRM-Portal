@@ -1,0 +1,26 @@
+# 외부 진입 — 경로 / 전체(/api/ 포함)를 ai-brm 서비스(컨테이너 nginx:80)로 보낸다. API 로의 분기는 컨테이너 안 nginx 가 한다.
+# <host> 는 11-configmap.yaml 의 APP_URL, AI 포탈 SSO 리디렉트 등록 주소(https://<host>/?token=)와 같아야 한다.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ai-brm
+  labels: { app.kubernetes.io/part-of: ai-brm }
+  annotations:
+    # 첨부 업로드(base64 JSON) 크기 — 컨테이너 nginx 의 client_max_body_size 와 같게. 사내 Ingress 컨트롤러에 맞는 키로 바꾼다.
+    nginx.ingress.kubernetes.io/proxy-body-size: 32m
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "120"
+spec:
+  # ingressClassName: nginx
+  # tls:
+  #   - hosts: [<host>]
+  #     secretName: <tls-secret>
+  rules:
+    - host: <host>
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ai-brm
+                port: { name: http }

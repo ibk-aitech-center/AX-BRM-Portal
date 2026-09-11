@@ -1,0 +1,13 @@
+# 첨부 파일 저장소 — ai-brm 파드의 /app/data 에 마운트. 재배포해도 지우지 않는다.
+# ReadWriteOnce 라서 파드는 replicas 1 · Recreate 로 돈다 (21-deployment.yaml).
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ai-brm-data
+  labels: { app.kubernetes.io/part-of: ai-brm }
+spec:
+  accessModes: [ReadWriteOnce]
+  # storageClassName: "<사내 StorageClass>"   # 클러스터 기본값을 쓰면 생략
+  resources:
+    requests:
+      storage: 20Gi

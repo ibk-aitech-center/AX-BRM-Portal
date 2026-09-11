@@ -1,0 +1,19 @@
+# AX-BRM 일반 설정 — 빈 값("") 은 "안 씀" 으로 처리되므로 지우지 말고 그대로 둬도 된다.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ai-brm-config
+  labels: { app.kubernetes.io/part-of: ai-brm }
+data:
+  # 서비스 접속 주소 — IBK톡 알림에 들어가는 링크의 앞부분 (32-ingress.yaml 의 host 와 같게)
+  APP_URL: "https://<host>"
+  # 인사 MariaDB 미러 (직책 · BRM 권한 자동 부여). 비우면 동기화 스킵 — 관리 화면에서 수동 지정
+  HR_DB_HOST: ""
+  HR_DB_PORT: "3306"
+  HR_DB_NAME: ""
+  HR_DB_USER: ""
+  # IBK톡 알림 — 둘 다 있을 때만 발송
+  ALARM_URL: ""
+  ALARM_SRV_CODE: ""
+  # 첨부 1건 최대 크기(MB) — 컨테이너 nginx 의 client_max_body_size(32m) 는 이 값 +8 이상이어야 한다
+  UPLOAD_MAX_MB: "20"

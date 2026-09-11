@@ -1,0 +1,1256 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<meta name="description" content="세 개의 접수 채널에서 아이디어를 받아 행외 생성형 AI 개발을 거쳐 행내 반입과 배포까지 판정하는 AI BRM 상담 표준">
+<title>AI-BRM 의사결정 및 지원 로드맵</title>
+<style>
+:root{
+  --bg:#FFFFFF; --surface:#FFFFFF; --surface-2:#F3F7F6;
+  --text:#0E2228; --text-2:#41585E; --text-3:#5E7379;
+  --line:#C9D6D6; --line-soft:#E2EAE9;
+  --hub:#0A6772; --hub-soft:#D8E9E8;
+  --off:#384982; --off-soft:#DFE4F1;
+  --red:#A23425; --red-soft:#F6E2DE;
+  --amber:#825E10; --amber-soft:#F4E9CF;
+  --green:#286346; --green-soft:#DBEBE1;
+  --bar-fg:#FFFFFF;
+  --f-sans:"Pretendard","Malgun Gothic","맑은 고딕","Apple SD Gothic Neo",system-ui,-apple-system,sans-serif;
+  --f-mono:Consolas,"D2Coding","Malgun Gothic",ui-monospace,monospace;
+  --shadow:0 1px 2px rgba(14,34,40,.04);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font-family:var(--f-sans);
+  font-size:16.5px; line-height:1.78; -webkit-font-smoothing:antialiased;
+  word-break:keep-all; overflow-wrap:break-word; line-break:strict;
+}
+/* 하이픈이 든 코드값이 "AI-" / "HUB" 로 갈라지지 않게 */
+.nb{white-space:nowrap}
+.wrap{max-width:1200px; margin:0 auto; padding:0 28px 130px}
+.cols{display:grid; grid-template-columns:1fr}
+@media (min-width:1080px){
+  .cols{grid-template-columns:200px minmax(0,1fr); gap:60px; align-items:start}
+}
+.rail{display:none}
+@media (min-width:1080px){.rail{display:block; position:sticky; top:36px; padding-top:8px}}
+.rail-h{font-family:var(--f-mono); font-size:11px; letter-spacing:.14em;
+  color:var(--text-3); text-transform:uppercase; margin-bottom:14px}
+.rail a{display:flex; gap:10px; align-items:baseline; text-decoration:none; color:var(--text-2);
+  font-size:14px; padding:7px 0; border-bottom:1px solid var(--line-soft); line-height:1.45}
+.rail a:last-child{border-bottom:0}
+.rail a:hover{color:var(--hub)}
+.rail a:focus-visible{outline:2px solid var(--hub); outline-offset:3px}
+.rail .k{font-family:var(--f-mono); font-size:11.5px; color:var(--text-3); min-width:14px}
+
+header{padding:66px 0 44px; border-bottom:1px solid var(--line)}
+.eyebrow{font-family:var(--f-mono); font-size:11.5px; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--hub); margin:0 0 20px}
+h1{font-family:var(--f-sans); font-weight:700; font-size:clamp(36px,5.2vw,54px);
+  line-height:1.2; letter-spacing:-.02em; margin:0 0 22px; text-wrap:balance; max-width:20ch}
+.lead{font-size:18px; line-height:1.7; color:var(--text-2); max-width:54ch; margin:0}
+.lead strong{color:var(--text); font-weight:500}
+
+section{padding-top:78px; scroll-margin-top:24px}
+.sec-head{display:flex; align-items:baseline; gap:15px; margin-bottom:10px}
+.sec-k{font-family:var(--f-mono); font-size:13px; color:var(--hub); letter-spacing:.1em; padding-top:2px}
+h2{font-family:var(--f-sans); font-weight:700; font-size:29px; letter-spacing:-.012em; margin:0; line-height:1.32}
+.sec-sub{color:var(--text-2); font-size:16.5px; line-height:1.7; max-width:56ch; margin:0 0 30px}
+h3{font-family:var(--f-sans); font-weight:700; font-size:21px; margin:44px 0 12px; letter-spacing:-.008em}
+p{margin:0 0 18px; max-width:56ch}
+b{font-weight:500; color:var(--text)}
+
+.axes{display:grid; gap:16px; grid-template-columns:1fr; margin:30px 0 8px}
+@media (min-width:820px){.axes{grid-template-columns:1fr 1fr}}
+.axis{border:1px solid var(--line); border-radius:4px; background:var(--surface); overflow:hidden}
+.axis-h{padding:17px 22px 16px; border-bottom:1px solid var(--line)}
+.axis-h .ak{font-family:var(--f-mono); font-size:11.5px; letter-spacing:.12em}
+.axis-h .at{font-family:var(--f-sans); font-size:21px; font-weight:700; letter-spacing:-.01em; margin-top:4px}
+.axis-1 .axis-h{background:var(--hub-soft); border-bottom-color:var(--hub)}
+.axis-1 .axis-h .ak{color:var(--hub)}
+.axis-2 .axis-h{background:var(--off-soft); border-bottom-color:var(--off)}
+.axis-2 .axis-h .ak{color:var(--off)}
+.axis-b{padding:20px 22px 22px}
+.axis-b dl{margin:0; display:grid; gap:15px}
+.axis-b dt{font-family:var(--f-mono); font-size:11px; letter-spacing:.09em;
+  color:var(--text-3); margin-bottom:3px}
+.axis-b dd{margin:0; font-size:15.5px; line-height:1.66; color:var(--text-2)}
+
+figure{margin:32px 0 10px; padding:0}
+.figbox{background:var(--surface); border:1px solid var(--line); border-radius:4px;
+  padding:30px 24px 24px; overflow-x:auto}
+figure svg{display:block; width:100%; height:auto; margin:0 auto}
+.svg-life{min-width:720px; max-width:900px}
+.svg-tree{min-width:720px; max-width:900px}
+figcaption{font-size:14.5px; color:var(--text-3); margin-top:16px; max-width:58ch; line-height:1.65}
+.dg-start{fill:var(--surface-2); stroke:var(--text-3); stroke-width:1.5}
+.dg-q{fill:var(--surface); stroke:var(--hub); stroke-width:1.7}
+.dg-plain{fill:var(--surface); stroke:var(--line); stroke-width:1.5}
+.dg-term{fill:var(--surface-2); stroke:var(--text-3); stroke-width:1.6}
+.dg-yn{fill:var(--text-3); font-family:var(--f-mono); font-size:12.5px; font-weight:500}
+.dg-red{fill:var(--red-soft); stroke:var(--red); stroke-width:1.5}
+.dg-green{fill:var(--green-soft); stroke:var(--green); stroke-width:1.5}
+.dg-amber{fill:var(--amber-soft); stroke:var(--amber); stroke-width:1.5}
+.dg-hub{fill:var(--hub-soft); stroke:var(--hub); stroke-width:2}
+.dg-off{fill:var(--off-soft); stroke:var(--off); stroke-width:1.7}
+.dg-h{fill:var(--text); font-family:var(--f-sans); font-size:16.5px; font-weight:600}
+.dg-t{fill:var(--text); font-family:var(--f-sans); font-size:15.5px; font-weight:500}
+.dg-s{fill:var(--text-2); font-family:var(--f-sans); font-size:13.5px}
+.dg-tag{font-family:var(--f-mono); font-size:13px; font-weight:500}
+.dg-k{fill:var(--text-3); font-family:var(--f-mono); font-size:12px; letter-spacing:.05em}
+.dg-line{stroke:var(--text-3); stroke-width:1.6; fill:none}
+.dg-head{fill:var(--text-3)}
+.dg-note{fill:var(--surface-2); stroke:var(--amber); stroke-width:1.3; stroke-dasharray:5 3}
+.tg-red{fill:var(--red)} .tg-green{fill:var(--green)} .tg-amber{fill:var(--amber)}
+.tg-hub{fill:var(--hub)} .tg-off{fill:var(--off)}
+
+.tablewrap{overflow-x:auto; margin:26px 0 10px; border:1px solid var(--line); border-radius:4px; background:var(--surface)}
+table{border-collapse:collapse; width:100%; min-width:720px; font-size:15px}
+th,td{text-align:left; padding:15px 17px; border-bottom:1px solid var(--line-soft); vertical-align:top; line-height:1.6}
+thead th{font-family:var(--f-mono); font-size:11px; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--text-3); font-weight:500; background:var(--surface-2);
+  border-bottom:1px solid var(--line)}
+tbody tr:last-child td{border-bottom:0}
+td.tk{font-family:var(--f-mono); font-weight:500; white-space:nowrap}
+td small{display:block; color:var(--text-3); font-size:13.2px; line-height:1.6; margin-top:5px}
+.w-g{color:var(--green)} .w-a{color:var(--amber)} .w-r{color:var(--red)} .w-h{color:var(--hub)}
+
+.gantt{margin:28px 0 8px; border:1px solid var(--line); border-radius:4px;
+  background:var(--surface); overflow-x:auto}
+.gantt-inner{min-width:800px}
+.g-head{display:grid; grid-template-columns:250px 1fr; background:var(--surface-2);
+  border-bottom:1px solid var(--line)}
+.g-head .hl{padding:13px 18px; font-family:var(--f-mono); font-size:11px;
+  letter-spacing:.1em; color:var(--text-3)}
+.g-weeks{display:grid; grid-template-columns:repeat(11,1fr)}
+.g-weeks span{font-family:var(--f-mono); font-size:12px; color:var(--text-3);
+  text-align:center; padding:13px 0; border-left:1px solid var(--line-soft)}
+.g-row{display:grid; grid-template-columns:250px 1fr; align-items:center;
+  border-bottom:1px solid var(--line-soft)}
+.g-row:last-child{border-bottom:0}
+.g-row:nth-child(even){background:var(--surface-2)}
+.g-lab{padding:11px 16px 11px 18px; line-height:1.4}
+.g-lab b{display:block; color:var(--text); font-weight:500; font-size:14.8px}
+.g-lab span{font-family:var(--f-mono); font-size:11.5px; color:var(--text-3); letter-spacing:.03em}
+.track{position:relative; height:44px;
+  background:repeating-linear-gradient(to right, var(--line-soft) 0 1px, transparent 1px calc(100%/11))}
+.bar{position:absolute; top:9px; height:26px; border-radius:3px;
+  left:calc(var(--s) / 11 * 100%); width:calc(var(--d) / 11 * 100%);
+  display:flex; align-items:center; padding:0 10px; font-size:12.5px;
+  color:var(--bar-fg); white-space:nowrap; overflow:hidden}
+.bar.us{background:var(--hub)} .bar.biz{background:var(--off)} .bar.ext{background:var(--amber)}
+.legend{display:flex; flex-wrap:wrap; gap:20px; padding:16px 18px; font-size:14px;
+  color:var(--text-2); border-top:1px solid var(--line)}
+.legend span{display:flex; align-items:center; gap:8px}
+.legend i{width:16px; height:11px; border-radius:2px; display:block}
+.i-us{background:var(--hub)} .i-biz{background:var(--off)} .i-ext{background:var(--amber)}
+
+.note{border-left:3px solid var(--hub); background:var(--hub-soft); padding:16px 22px;
+  border-radius:0 4px 4px 0; margin:26px 0; font-size:15.5px; line-height:1.68; color:var(--text-2)}
+.note p{margin:0; max-width:60ch}
+.note p + p{margin-top:8px}
+.note b{color:var(--text)}
+.note.warn{border-left-color:var(--red); background:var(--red-soft)}
+
+.chk{background:var(--surface); border:1px solid var(--line); border-radius:4px; overflow:hidden; margin:26px 0}
+.chk-h{padding:16px 22px; background:var(--surface-2); border-bottom:1px solid var(--line);
+  display:flex; align-items:baseline; gap:12px; flex-wrap:wrap}
+.chk-h .sk{font-family:var(--f-mono); font-size:11px; letter-spacing:.1em; color:var(--text-3)}
+.chk-h .sn{font-family:var(--f-sans); font-weight:700; font-size:18px; letter-spacing:-.01em}
+ul.rl{list-style:none; margin:0; padding:4px 22px 18px}
+ul.rl li{display:grid; grid-template-columns:32px 1fr; gap:14px; padding:15px 0;
+  border-bottom:1px solid var(--line-soft)}
+ul.rl li:last-child{border-bottom:0}
+ul.rl .x{font-family:var(--f-mono); font-size:12px; color:var(--text-3); padding-top:4px}
+ul.rl b{display:block; color:var(--text); font-weight:500; font-size:16px; margin-bottom:4px}
+ul.rl p{margin:0; font-size:15px; line-height:1.66; color:var(--text-2); max-width:60ch}
+.cost{font-family:var(--f-mono); font-size:11px; letter-spacing:.04em;
+  padding:2px 8px; border-radius:3px; margin-left:9px; white-space:nowrap; vertical-align:2px;
+  background:var(--red-soft); color:var(--red); border:1px solid var(--red)}
+.cost.lo{background:var(--green-soft); color:var(--green); border-color:var(--green)}
+
+footer{margin-top:80px; padding-top:26px; border-top:1px solid var(--line);
+  font-size:14px; color:var(--text-3); line-height:1.72; max-width:64ch}
+footer b{color:var(--text-2); font-weight:500}
+
+/* 넘칠 때만 좌우 끝에 그림자가 나타나는 순수 CSS 스크롤 단서 */
+.tablewrap,.figbox,.gantt{
+  background:
+    linear-gradient(to right, var(--surface) 40%, rgba(255,255,255,0)) left center / 32px 100% no-repeat local,
+    linear-gradient(to left,  var(--surface) 40%, rgba(255,255,255,0)) right center / 32px 100% no-repeat local,
+    radial-gradient(farthest-side at 0 50%,    rgba(14,34,40,.10), rgba(14,34,40,0)) left center / 12px 100% no-repeat scroll,
+    radial-gradient(farthest-side at 100% 50%, rgba(14,34,40,.10), rgba(14,34,40,0)) right center / 12px 100% no-repeat scroll,
+    var(--surface);
+  scrollbar-width:thin;
+}
+
+@page{ size:A4 portrait; margin:14mm 12mm; }
+@media print{
+  html,body{ background:#fff !important; }
+  body{ font-size:10pt; line-height:1.62; }
+  .wrap{ max-width:none; padding:0; }
+  .cols{ display:block; }
+  .rail{ display:none !important; }
+  header{ padding:0 0 16px; }
+  h1{ font-size:24pt; margin-bottom:10px; }
+  .lead{ font-size:11pt; max-width:none; }
+  section{ padding-top:22px; }
+  h2{ font-size:15pt; break-after:avoid; page-break-after:avoid; }
+  h3{ font-size:12pt; margin:20px 0 8px; break-after:avoid; page-break-after:avoid; }
+  .sec-head{ break-after:avoid; page-break-after:avoid; }
+  .sec-sub{ font-size:10pt; max-width:none; }
+  p{ max-width:none; }
+
+  /* diagrams: scale to the page instead of scrolling */
+  .figbox{ padding:12px 10px 10px; overflow:visible; }
+  figure{ margin:14px 0 8px; break-inside:avoid; page-break-inside:avoid; }
+  figure svg{ min-width:0 !important; max-width:100% !important; width:100%; }
+  figcaption{ font-size:9pt; max-width:none; }
+
+  /* tables: fit the page, repeat the header row */
+  .tablewrap{ overflow:visible; margin:14px 0 8px; }
+  table{ min-width:0 !important; font-size:8.6pt; }
+  th,td{ padding:7px 8px; }
+  td small{ font-size:7.8pt; }
+  thead{ display:table-header-group; }
+  tr{ break-inside:avoid; page-break-inside:avoid; }
+
+  /* gantt */
+  .gantt{ overflow:visible; break-inside:avoid; page-break-inside:avoid; }
+  .gantt-inner{ min-width:0 !important; }
+  .g-head,.g-row{ grid-template-columns:150px 1fr; }
+  .g-lab b{ font-size:8.4pt; }
+  .g-lab span{ font-size:7.4pt; }
+  .track{ height:26px; }
+  .bar{ top:5px; height:16px; font-size:7.4pt; }
+  .legend{ font-size:8.4pt; padding:10px 12px; }
+
+  /* blocks that must not split */
+  .axis,.chk,.note,.gantt,ul.rl li{
+    break-inside:avoid; page-break-inside:avoid;
+  }
+  .axes{ gap:10px; }
+  .axis-b dd{ font-size:9.4pt; }
+  ul.rl li{ padding:9px 0; }
+  ul.rl b{ font-size:10pt; }
+  ul.rl p{ font-size:9.2pt; max-width:none; }
+  .note{ font-size:9.6pt; padding:11px 14px; }
+  .note p{ max-width:none; }
+
+  body,h1,h2,h3,p,td,th,li,dd,dt{ word-break:keep-all; overflow-wrap:break-word; }
+  .tablewrap,.figbox,.gantt{ background:var(--surface) !important; }
+  *{ box-shadow:none !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  footer{ margin-top:26px; font-size:8.6pt; max-width:none; }
+  .noprint{ display:none !important; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   v0.6 확장 — 접수 채널 · 아이디어화 · 행외 개발 구간
+   ───────────────────────────────────────────────────────────── */
+.rail-g{font-family:var(--f-mono); font-size:10.5px; letter-spacing:.14em;
+  color:var(--text-3); text-transform:uppercase; margin:18px 0 6px}
+.rail-g:first-of-type{margin-top:2px}
+
+.svg-flow{min-width:760px; max-width:900px}
+.svg-layer{min-width:760px; max-width:900px}
+.svg-map{min-width:720px; max-width:900px}
+
+/* 줄바꿈 — 마지막 줄에 한두 글자만 남는 것을 줄이고, 코드값은 통째로 유지 */
+/* 한국어 줄바꿈 — 단폭을 넓혀 끊길 자리를 줄이고,
+   짧은 문단은 줄 길이를 고르게(balance), 긴 본문은 고아 줄만 방지(pretty) */
+.lead{max-width:74ch}
+p,.sec-sub{max-width:76ch}
+.note p,ul.rl p{max-width:76ch}
+figcaption{max-width:72ch}
+.lead,.sec-sub,figcaption,.note p{text-wrap:balance}
+p,dd,li,td,th,.g-lab b,ul.rl p{text-wrap:pretty}
+.g-weeks span,.g-lab span,.axis-h .ak,.chk-h .sk{white-space:nowrap}
+
+/* 00 마스터 도식 — 구간 밴드를 누르면 해당 절로 이동 */
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+.dg-panel{fill:var(--surface); stroke:var(--line-soft); stroke-width:1.4}
+.dg-band{fill:var(--text-3); font-family:var(--f-mono); font-size:12px; letter-spacing:.08em}
+.dg-more{fill:var(--hub)}
+
+/* 접이식 목록 — 기본 접힘, 헤더를 누르면 펼쳐진다 */
+details.chk > summary.chk-h{cursor:pointer; list-style:none; -webkit-user-select:none; user-select:none}
+details.chk > summary.chk-h::-webkit-details-marker{display:none}
+details.chk > summary.chk-h::after{
+  content:"펼치기"; margin-left:auto; font-family:var(--f-mono); font-size:11px;
+  letter-spacing:.08em; color:var(--hub); border:1px solid var(--hub);
+  border-radius:3px; padding:3px 11px; white-space:nowrap}
+details.chk[open] > summary.chk-h::after{content:"접기"}
+details.chk > summary.chk-h:hover::after{background:var(--hub-soft)}
+details.chk > summary.chk-h:focus-visible{outline:2px solid var(--hub); outline-offset:-2px}
+details.chk:not([open]) > summary.chk-h{border-bottom:0}
+figure svg a{cursor:pointer}
+figure svg a:hover .dg-panel{fill:var(--surface-2); stroke:var(--hub)}
+figure svg a:hover .dg-band{fill:var(--hub)}
+figure svg a:focus-visible{outline:2px solid var(--hub); outline-offset:2px}
+
+/* 접수 채널 3열 카드 — .axis 카드를 3열로 */
+.chans{display:grid; gap:16px; grid-template-columns:1fr; margin:30px 0 8px}
+@media (min-width:1000px){.chans{grid-template-columns:repeat(3,1fr)}}
+.chans .axis-h .at{font-size:19px}
+.axis-3 .axis-h{background:var(--off-soft); border-bottom-color:var(--off)}
+.axis-3 .axis-h .ak{color:var(--off)}
+.axis-4 .axis-h{background:var(--hub-soft); border-bottom-color:var(--hub)}
+.axis-4 .axis-h .ak{color:var(--hub)}
+.axis-5 .axis-h{background:var(--amber-soft); border-bottom-color:var(--amber)}
+.axis-5 .axis-h .ak{color:var(--amber)}
+
+/* 간트 — 열 개수를 --cols 로 받아 구간 길이를 바꾼다 */
+.gantt{--cols:11}
+.gantt-inner.wide{min-width:858px}
+.gantt-inner.wide .g-head,.gantt-inner.wide .g-row{grid-template-columns:206px 1fr}
+.gantt-inner.wide .g-head .hl{padding:8px 14px}
+.gantt-inner.wide .g-lab{padding:3px 10px 3px 14px; font-size:11px; line-height:1.2}
+.gantt-inner.wide .g-lab b{font-size:12.8px; line-height:1.2; margin-bottom:1px}
+.gantt-inner.wide .g-lab span{font-size:10px; line-height:1.15; letter-spacing:0}
+.gantt-inner.wide .g-weeks span{font-size:11px; padding:8px 0}
+.gantt-inner.wide .track{height:30px}
+.gantt-inner.wide .bar{top:5px; height:20px; font-size:11.5px; padding:0 8px}
+.gantt-inner.wide .legend{padding:11px 14px; font-size:13px; gap:18px}
+.g-weeks{grid-template-columns:repeat(var(--cols),1fr)}
+.track{background:repeating-linear-gradient(to right,
+  var(--line-soft) 0 1px, transparent 1px calc(100%/var(--cols)))}
+.bar{left:calc(var(--s) / var(--cols) * 100%); width:calc(var(--d) / var(--cols) * 100%)}
+.g-weeks span.pre{color:var(--amber)}
+.bar.pre{background:var(--text-3)}
+.i-pre{background:var(--text-3)}
+.g-row.edge{border-bottom:2px solid var(--line)}
+
+@media print{
+  .rail-g{display:none}
+  .chans{grid-template-columns:repeat(3,1fr); gap:8px}
+  .chans .axis-h .at{font-size:11pt}
+  .dg-more{display:none}
+  details.chk > summary.chk-h::after{display:none}
+  details.chk:not([open]) > summary.chk-h{border-bottom:1px solid var(--line)}
+  .gantt-inner.wide{min-width:0 !important}
+  .gantt-inner.wide .g-head,.gantt-inner.wide .g-row{grid-template-columns:150px 1fr}
+  .gantt-inner.wide .g-lab b{font-size:8.4pt}
+  .gantt-inner.wide .g-weeks span{font-size:6.8pt}
+}
+
+/* PDF 저장 버튼 — 화면에만 보이고 인쇄물에는 나오지 않는다 */
+.pdfbtn{position:fixed; right:22px; bottom:22px; z-index:20;
+  font-family:var(--f-mono); font-size:12px; letter-spacing:.06em;
+  color:var(--hub); background:var(--surface); border:1px solid var(--hub);
+  border-radius:4px; padding:10px 16px; cursor:pointer; line-height:1;
+  box-shadow:0 2px 10px rgba(14,34,40,.12)}
+.pdfbtn:hover{background:var(--hub-soft)}
+.pdfbtn:focus-visible{outline:2px solid var(--hub); outline-offset:2px}
+@media print{ .pdfbtn{display:none !important} }
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="cols">
+
+<nav class="rail" aria-label="목차">
+  <div class="rail-h">Contents</div>
+  <div class="rail-g">인입 · 개발</div>
+  <a href="#flow"><span class="k">00</span><span>전체 흐름</span></a>
+  <a href="#intake"><span class="k">01</span><span>접수 채널 셋</span></a>
+  <a href="#extdev"><span class="k">02</span><span>행외 개발</span></a>
+  <div class="rail-g">반입 · 배포</div>
+  <a href="#life"><span class="k">03</span><span>반입 판정 흐름</span></a>
+  <a href="#axes"><span class="k">04</span><span>결정할 두 가지</span></a>
+  <a href="#dest"><span class="k">05</span><span>배포지 결정</span></a>
+  <a href="#nonhub"><span class="k">06</span><span>환경 정합화</span></a>
+  <a href="#data"><span class="k">07</span><span>데이터 연계 결정</span></a>
+  <a href="#compare"><span class="k">08</span><span>연계 방식 비교</span></a>
+  <div class="rail-g">실행</div>
+  <a href="#road"><span class="k">09</span><span>14주 로드맵</span></a>
+  <a href="#who"><span class="k">10</span><span>협의처 지도</span></a>
+</nav>
+
+<main>
+
+<header>
+  <p class="eyebrow">AI BRM 상담 표준 · 인입 · 개발 · 반입 · 배포 편</p>
+  <h1><span class="nb">AI-BRM</span> 의사결정 및 지원 로드맵</h1>
+  <p class="lead">아이디어가 들어오는 <strong>세 개의 접수 채널</strong>에서 시작해, 행외 <span class="nb">생성형 AI</span> 개발을 거쳐 행내 <strong>배포지</strong>와 <strong>데이터 연계 방식</strong>까지 판정하는 상담 기준.</p>
+</header>
+
+<section id="flow">
+  <div class="sec-head"><span class="sec-k">00</span><h2>인입부터 배포까지 한 장</h2></div>
+  <p class="sec-sub">접수 · 행외 개발 · 행내 반입 세 구간이 하나로 이어진 판정 흐름입니다. <b>구간을 클릭하면 해당 절로 이동</b>합니다.</p>
+  <figure>
+    <div class="figbox">
+      <svg class="svg-map" viewBox="0 0 900 1222" role="img" aria-label="전체 판정 흐름도. 첫째 구간에서 상시 접수와 붐업페스타 수상작과 역제안 세 채널이 착수 판정으로 모인다. 판정 결과는 셋으로 갈린다. 보류는 조건부 보류로 빠지고, AI 활용은 행내 기존 서비스인 GENI와 알대리 이용으로 종료되며, 개발 검증만 아래로 이어진다. 둘째 구간에서 업무 재현에 데이터가 필요한지, 실제 값 특성이 필요한지를 물어 케이스 A 가상 데이터, 케이스 B 합성 데이터, 케이스 C 비식별 실데이터로 갈린다. 셋째 구간에서 AI-HUB 배포 여부와 행내 데이터 필요 여부, 온라인인지 배치인지를 물어 마트 조회 권한과 파일 수령과 BDP 직접 연결 셋으로 갈린다">
+        <defs>
+          <marker id="mp" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <polygon class="dg-head" points="0,1 10,5 0,9"/>
+          </marker>
+        </defs>
+
+        <!-- ══ 구간 1 · 접수 ══ -->
+        <a href="#intake" aria-label="01 접수 채널 셋 절로 이동">
+          <rect class="dg-panel" x="6" y="30" width="888" height="310" rx="8"/>
+          <text class="dg-band" x="22" y="54">01 · 접수 채널 셋 · 지원 영역 분기</text>
+          <text class="dg-band dg-more" x="878" y="54" text-anchor="end">자세히 →</text>
+
+          <rect class="dg-off" x="22" y="68" width="272" height="62" rx="5"/>
+          <text class="dg-tag tg-off" x="38" y="94">CH-1 상시 접수</text>
+          <text class="dg-s" x="38" y="116">현업 부서 문의 · BRM 방문</text>
+
+          <rect class="dg-hub" x="314" y="68" width="272" height="62" rx="5"/>
+          <text class="dg-tag tg-hub" x="330" y="94">CH-2 붐업페스타</text>
+          <text class="dg-s" x="330" y="116">상반기 수상작 서비스화</text>
+
+          <rect class="dg-amber" x="606" y="68" width="272" height="62" rx="5"/>
+          <text class="dg-tag tg-amber" x="622" y="94">CH-3 역제안</text>
+          <text class="dg-s" x="622" y="116">BRM이 발굴해 먼저 제안</text>
+
+          <path class="dg-line" d="M158 130 V146 M450 130 V146 M742 130 V146"/>
+          <path class="dg-line" d="M158 146 H742"/>
+          <line class="dg-line" x1="450" y1="146" x2="450" y2="168" marker-end="url(#mp)"/>
+
+          <polygon class="dg-q" points="450,168 596,208 450,248 304,208"/>
+          <text class="dg-t" x="450" y="214" text-anchor="middle">착수 판정(지원 영역)</text>
+
+          <line class="dg-line" x1="596" y1="208" x2="644" y2="208" marker-end="url(#mp)"/>
+          <text class="dg-yn" x="623" y="200" text-anchor="middle">보류</text>
+          <rect class="dg-note" x="650" y="182" width="228" height="52" rx="5"/>
+          <text class="dg-tag tg-amber" x="666" y="204">조건부 보류</text>
+          <text class="dg-s" x="666" y="224">미비 항목 통보 후 재접수</text>
+
+          <line class="dg-line" x1="304" y1="208" x2="256" y2="208" marker-end="url(#mp)"/>
+          <text class="dg-yn" x="278" y="200" text-anchor="middle">AI 활용</text>
+          <rect class="dg-green" x="22" y="182" width="230" height="52" rx="5"/>
+          <text class="dg-tag tg-green" x="38" y="204">행내 서비스로 지원</text>
+          <text class="dg-s" x="38" y="224">GENI · 알대리 이용 후 종료</text>
+
+          <line class="dg-line" x1="450" y1="248" x2="450" y2="270" marker-end="url(#mp)"/>
+          <text class="dg-yn" x="438" y="264" text-anchor="end">개발 검증</text>
+
+          <rect class="dg-green" x="250" y="270" width="400" height="56" rx="5"/>
+          <text class="dg-tag tg-green" x="268" y="294">과제 확정 · 착수 승인</text>
+          <text class="dg-s" x="268" y="315">배포지 · 데이터 연계 사전 판정</text>
+        </a>
+
+        <line class="dg-line" x1="450" y1="340" x2="450" y2="372" marker-end="url(#mp)"/>
+
+        <!-- ══ 구간 2 · 행외 개발 ══ -->
+        <a href="#extdev" aria-label="02 행외 개발 절로 이동">
+          <rect class="dg-panel" x="6" y="372" width="888" height="300" rx="8"/>
+          <text class="dg-band" x="22" y="396">02 · 행외 개발 · 개발용 데이터</text>
+          <text class="dg-band dg-more" x="878" y="396" text-anchor="end">자세히 →</text>
+
+          <polygon class="dg-q" points="450,410 596,444 450,478 304,444"/>
+          <text class="dg-t" x="450" y="450" text-anchor="middle">업무 재현에 데이터가 필요한가?</text>
+
+          <line class="dg-line" x1="596" y1="444" x2="624" y2="444" marker-end="url(#mp)"/>
+          <text class="dg-yn" x="610" y="436" text-anchor="middle">NO</text>
+          <rect class="dg-green" x="632" y="418" width="246" height="52" rx="5"/>
+          <text class="dg-tag tg-green" x="648" y="440">CASE A · 가상 데이터</text>
+          <text class="dg-s" x="648" y="460">입력값만으로 동작</text>
+
+          <line class="dg-line" x1="450" y1="478" x2="450" y2="500" marker-end="url(#mp)"/>
+          <text class="dg-yn" x="438" y="494" text-anchor="end">YES</text>
+
+          <polygon class="dg-q" points="450,500 596,534 450,568 304,534"/>
+          <text class="dg-t" x="450" y="540" text-anchor="middle">실제 값 특성이 필요한가?</text>
+
+          <line class="dg-line" x1="596" y1="534" x2="624" y2="534" marker-end="url(#mp)"/>
+          <text class="dg-yn" x="610" y="526" text-anchor="middle">NO</text>
+          <rect class="dg-hub" x="632" y="508" width="246" height="52" rx="5"/>
+          <text class="dg-tag tg-hub" x="648" y="530">CASE B · 합성 데이터</text>
+          <text class="dg-s" x="648" y="550">구조만 반출 · 표준</text>
+
+          <line class="dg-line" x1="450" y1="568" x2="450" y2="590" marker-end="url(#mp)"/>
+          <text class="dg-yn" x="438" y="584" text-anchor="end">YES</text>
+
+          <rect class="dg-red" x="250" y="590" width="400" height="56" rx="5"/>
+          <text class="dg-tag tg-red" x="268" y="614">CASE C · 비식별 실데이터</text>
+          <text class="dg-s" x="268" y="635">반출 적정성 검토 · +3~5주</text>
+
+          <path class="dg-line" d="M650 618 H762 V564" marker-end="url(#mp)" stroke-dasharray="5 4"/>
+          <text class="dg-yn" x="770" y="600">Case B로 회귀</text>
+        </a>
+
+        <line class="dg-line" x1="450" y1="646" x2="450" y2="704" marker-end="url(#mp)"/>
+
+        <!-- ══ 구간 3 · 행내 반입 ══ -->
+        <a href="#life" aria-label="03 행내 반입 판정 흐름 절로 이동">
+          <rect class="dg-panel" x="6" y="704" width="888" height="496" rx="8"/>
+          <text class="dg-band" x="22" y="728">03 · 행내 반입 판정</text>
+          <text class="dg-band dg-more" x="878" y="728" text-anchor="end">자세히 →</text>
+
+          <rect class="dg-term" x="310" y="742" width="280" height="40" rx="20"/>
+          <text class="dg-t" x="450" y="768" text-anchor="middle">행내 반입 신청</text>
+          <line class="dg-line" x1="450" y1="782" x2="450" y2="800" marker-end="url(#mp)"/>
+
+          <polygon class="dg-q" points="450,800 596,838 450,876 304,838"/>
+          <text class="dg-t" x="450" y="844" text-anchor="middle">AI-HUB에 올리는가?</text>
+          <line class="dg-line" x1="596" y1="838" x2="624" y2="838" marker-end="url(#mp)"/>
+          <text class="dg-yn" x="610" y="830" text-anchor="middle">NO</text>
+          <rect class="dg-note" x="632" y="812" width="246" height="52" rx="5"/>
+          <text class="dg-tag tg-amber" x="648" y="834">비-AI-HUB</text>
+          <text class="dg-s" x="648" y="854">배포 방식 추후 정의</text>
+
+          <line class="dg-line" x1="450" y1="876" x2="450" y2="898" marker-end="url(#mp)"/>
+          <text class="dg-yn" x="438" y="892" text-anchor="end">YES</text>
+
+          <polygon class="dg-q" points="450,898 596,936 450,974 304,936"/>
+          <text class="dg-t" x="450" y="942" text-anchor="middle">행내 데이터가 필요한가?</text>
+          <line class="dg-line" x1="596" y1="936" x2="624" y2="936" marker-end="url(#mp)"/>
+          <text class="dg-yn" x="610" y="928" text-anchor="middle">NO</text>
+          <rect class="dg-green" x="632" y="910" width="246" height="52" rx="5"/>
+          <text class="dg-tag tg-green" x="648" y="932">데이터 협의 없음</text>
+          <text class="dg-s" x="648" y="952">반입 점검 후 2~3주</text>
+
+          <line class="dg-line" x1="450" y1="974" x2="450" y2="996" marker-end="url(#mp)"/>
+          <text class="dg-yn" x="438" y="990" text-anchor="end">YES</text>
+
+          <polygon class="dg-q" points="450,996 596,1030 450,1064 304,1030"/>
+          <text class="dg-t" x="450" y="1036" text-anchor="middle">온라인인가, 배치인가?</text>
+
+          <path class="dg-line" d="M450 1064 V1082 H158"/>
+          <path class="dg-line" d="M450 1082 H742"/>
+          <line class="dg-line" x1="158" y1="1082" x2="158" y2="1104" marker-end="url(#mp)"/>
+          <line class="dg-line" x1="450" y1="1082" x2="450" y2="1104" marker-end="url(#mp)"/>
+          <line class="dg-line" x1="742" y1="1082" x2="742" y2="1104" marker-end="url(#mp)"/>
+          <text class="dg-yn" x="290" y="1074" text-anchor="middle">온라인</text>
+          <text class="dg-yn" x="610" y="1074" text-anchor="middle">배치</text>
+
+          <rect class="dg-off" x="22" y="1104" width="272" height="80" rx="5"/>
+          <text class="dg-tag tg-off" x="38" y="1130">온라인 · 마트 조회 권한</text>
+          <text class="dg-s" x="38" y="1152">SQL 질의로 실시간 응답</text>
+          <text class="dg-k" x="38" y="1173">1~2주</text>
+
+          <rect class="dg-green" x="314" y="1104" width="272" height="80" rx="5"/>
+          <text class="dg-tag tg-green" x="330" y="1130">배치 · 파일 수령</text>
+          <text class="dg-s" x="330" y="1152">데이터혁신부에서 전달</text>
+          <text class="dg-k" x="330" y="1173">소량 · 2~3주</text>
+
+          <rect class="dg-hub" x="606" y="1104" width="272" height="80" rx="5"/>
+          <text class="dg-tag tg-hub" x="622" y="1130">배치 · BDP 직접 연결</text>
+          <text class="dg-s" x="622" y="1152">일배치로 적재 후 사용</text>
+          <text class="dg-k" x="622" y="1173">대량 정기 · 4~6주</text>
+        </a>
+      </svg>
+    </div>
+  </figure>
+</section>
+
+<section id="intake">
+  <div class="sec-head"><span class="sec-k">01</span><h2>접수 채널 셋</h2></div>
+  <p class="sec-sub">어느 채널로 들어왔는지에 따라 <b>이미 확보된 것</b>과 <b>먼저 확인할 것</b>이 다릅니다.</p>
+  <div class="chans">
+    <div class="axis axis-3">
+      <div class="axis-h"><div class="ak"><span class="nb">CH-1</span> · 상시</div><div class="at">상시 접수</div></div>
+      <div class="axis-b">
+        <dl>
+          <div><dt>인입 경로</dt><dd>현업 부서 문의, BRM 정기 방문</dd></div>
+          <div><dt>이미 확보된 것</dt><dd>실사용자와 수행 부서</dd></div>
+          <div><dt>먼저 확인할 것</dt><dd>요건의 구체성. <b>해결책 형태로</b> 먼저 제시되는 경우가 많음</dd></div>
+        </dl>
+      </div>
+    </div>
+    <div class="axis axis-4">
+      <div class="axis-h"><div class="ak"><span class="nb">CH-2</span> · 경진대회</div><div class="at">붐업페스타 수상작</div></div>
+      <div class="axis-b">
+        <dl>
+          <div><dt>인입 경로</dt><dd>상반기 개최분 수상 아이디어의 일괄 이관. 서비스화 대상 선정이 전제</dd></div>
+          <div><dt>이미 확보된 것</dt><dd>아이디어 검증과 사내 인지도</dd></div>
+          <div><dt>먼저 확인할 것</dt><dd><b>수행 부서와 데이터 실체</b>. 발표 시점에는 다루지 않는 항목</dd></div>
+        </dl>
+      </div>
+    </div>
+    <div class="axis axis-5">
+      <div class="axis-h"><div class="ak"><span class="nb">CH-3</span> · 역제안</div><div class="at">우리가 먼저 제안</div></div>
+      <div class="axis-b">
+        <dl>
+          <div><dt>인입 경로</dt><dd>BRM이 반복 업무와 부서 공통 페인포인트를 관찰해 과제를 만들어 제안</dd></div>
+          <div><dt>이미 확보된 것</dt><dd>기술 타당성과 목적지 판단</dd></div>
+          <div><dt>먼저 확인할 것</dt><dd><b>현업 수요의 실체</b>. 실제 사용으로 이어지는지 확인</dd></div>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+
+  <h3><span class="nb">착수 판정</span> · <span class="nb">지원 영역</span> 분기</h3>
+  <p>접수된 과제는 현업 니즈에 따라 두 갈래로 나뉘고, 갈래마다 <span class="nb">지원 수단</span>이 다릅니다.</p>
+  <figure>
+    <div class="figbox">
+      <svg class="svg-tree" viewBox="0 0 900 530" role="img" aria-label="착수 판정 세분화도. 착수 판정에서 지원 영역이 둘로 갈린다. AI 활용 갈래는 행내 도구인 GENI(LLM과 RAG)와 알대리(RPA와 AI-OCR)로 연결된다. 개발 검증 갈래는 바이브코딩(행외 생성형 AI), 바이브랩스(행외 개발 서비스의 내부 적용), AI HUB 플랫폼(개발 운영 인프라) 세 가지로 연결되며, 이 셋은 만든 뒤 배포하는 단계로도 순서대로 이어진다. 바이브랩스에 배포한 서비스는 AI HUB 서버에서 운영된다. 추후 행내 바이브코딩 도구인 제니코드가 열리면 행외 생성형 AI 역할을 대체한다">
+        <defs>
+          <marker id="ax" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <polygon class="dg-head" points="0,1 10,5 0,9"/>
+          </marker>
+        </defs>
+
+        <rect class="dg-start" x="350" y="16" width="200" height="40" rx="5"/>
+        <text class="dg-t" x="450" y="42" text-anchor="middle">착수 판정(지원 영역)</text>
+
+        <path class="dg-line" d="M450 56 V90 M180 90 H620"/>
+        <line class="dg-line" x1="180" y1="90" x2="180" y2="112" marker-end="url(#ax)"/>
+        <line class="dg-line" x1="620" y1="90" x2="620" y2="112" marker-end="url(#ax)"/>
+
+        <rect class="dg-off" x="20" y="112" width="320" height="72" rx="5"/>
+        <text class="dg-tag tg-off" x="38" y="138">지원 영역 · AI 활용</text>
+        <text class="dg-s" x="38" y="161">"AI를 업무에 활용하고 싶다"</text>
+
+        <rect class="dg-hub" x="360" y="112" width="520" height="72" rx="5"/>
+        <text class="dg-tag tg-hub" x="378" y="138">지원 영역 · 개발 검증</text>
+        <text class="dg-s" x="378" y="161">"아이디어를 직접 만들어보고 싶다"</text>
+
+        <path class="dg-line" d="M180 184 V204 M95 204 H265"/>
+        <line class="dg-line" x1="95" y1="204" x2="95" y2="228" marker-end="url(#ax)"/>
+        <line class="dg-line" x1="265" y1="204" x2="265" y2="228" marker-end="url(#ax)"/>
+
+        <rect class="dg-green" x="20" y="228" width="150" height="84" rx="5"/>
+        <text class="dg-tag tg-green" x="36" y="252">GENI · 행내</text>
+        <text class="dg-s" x="36" y="275">생성형 AI</text>
+        <text class="dg-k" x="36" y="296">LLM · RAG</text>
+
+        <rect class="dg-green" x="190" y="228" width="150" height="84" rx="5"/>
+        <text class="dg-tag tg-green" x="206" y="252">알대리 · 행내</text>
+        <text class="dg-s" x="206" y="275">정형 업무 자동화</text>
+        <text class="dg-k" x="206" y="296">RPA · AI-OCR</text>
+
+        <path class="dg-line" d="M620 184 V204 M435 204 H805"/>
+        <line class="dg-line" x1="435" y1="204" x2="435" y2="228" marker-end="url(#ax)"/>
+        <line class="dg-line" x1="620" y1="204" x2="620" y2="228" marker-end="url(#ax)"/>
+        <line class="dg-line" x1="805" y1="204" x2="805" y2="228" marker-end="url(#ax)"/>
+
+        <rect class="dg-amber" x="360" y="228" width="150" height="84" rx="5"/>
+        <text class="dg-tag tg-amber" x="376" y="252">바이브코딩</text>
+        <text class="dg-s" x="376" y="275">행외 생성형 AI</text>
+        <text class="dg-k" x="376" y="296">아이디어 구현</text>
+
+        <rect class="dg-hub" x="545" y="228" width="150" height="84" rx="5"/>
+        <text class="dg-tag tg-hub" x="561" y="252">바이브랩스</text>
+        <text class="dg-s" x="561" y="275">행외 개발 서비스</text>
+        <text class="dg-k" x="561" y="296">내부 적용</text>
+
+        <rect class="dg-hub" x="730" y="228" width="150" height="84" rx="5"/>
+        <text class="dg-tag tg-hub" x="746" y="252">AI HUB 플랫폼</text>
+        <text class="dg-s" x="746" y="275">개발·운영 인프라</text>
+        <text class="dg-k" x="746" y="296">서버 · 배포 환경</text>
+
+        <line class="dg-line" x1="514" y1="270" x2="541" y2="270" marker-end="url(#ax)"/>
+        <line class="dg-line" x1="699" y1="270" x2="726" y2="270" marker-end="url(#ax)"/>
+        <text class="dg-yn" x="527" y="222" text-anchor="middle">만든 뒤</text>
+        <text class="dg-yn" x="712" y="222" text-anchor="middle">배포하면</text>
+        <text class="dg-yn" x="620" y="338" text-anchor="middle">바이브랩스 배포분은 AI HUB 서버에서 운영</text>
+
+        <path class="dg-line" d="M435 392 V316" marker-end="url(#ax)" stroke-dasharray="5 4"/>
+        <rect class="dg-note" x="275" y="392" width="320" height="58" rx="5"/>
+        <text class="dg-tag tg-amber" x="291" y="417">추후 · 제니코드</text>
+        <text class="dg-s" x="291" y="439">행내 바이브코딩 툴 · 행외 역할 대체</text>
+
+        <rect class="dg-note" x="20" y="470" width="860" height="40" rx="4"/>
+        <text class="dg-s" x="40" y="495">AI 활용 갈래는 행내 도구로 바로 지원하고, 개발 검증 갈래만 행외 개발과 반입 절차를 거칩니다.</text>
+      </svg>
+    </div>
+  </figure>
+</section>
+
+<section id="extdev">
+  <div class="sec-head"><span class="sec-k">02</span><h2>행외 개발 · <span class="nb">생성형 AI</span> 툴 구간</h2></div>
+  <p class="sec-sub">폐쇄망 안에서는 <span class="nb">생성형 AI</span> 코딩 도구를 쓸 수 없으므로 개발은 행외에서 합니다.</p>
+
+  <h3>개발용 데이터 세 갈래</h3>
+  <p>업무 특성에 따라 세 갈래로 갈리고, 갈래마다 행외로 나가는 것이 다릅니다. <b><span class="nb">Case B</span>가 표준</b>이고 <span class="nb">Case C</span>는 심의를 거친 예외입니다.</p>
+  <figure>
+    <div class="figbox">
+      <svg class="svg-tree" viewBox="0 0 900 470" role="img" aria-label="개발용 데이터 판정 트리. 업무 재현에 데이터가 필요하지 않으면 케이스 A 가상 데이터, 필요하지만 실제 데이터 특성까지는 필요 없으면 케이스 B 합성 데이터, 실제 데이터 특성이 반드시 필요하면 케이스 C 비식별 실데이터로 가되 재검토를 거쳐 케이스 B로 돌아올 수 있다">
+        <defs>
+          <marker id="ad" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <polygon class="dg-head" points="0,1 10,5 0,9"/>
+          </marker>
+        </defs>
+
+        <rect class="dg-start" x="250" y="16" width="400" height="44" rx="5"/>
+        <text class="dg-t" x="450" y="44" text-anchor="middle">개발용 데이터 판정</text>
+        <line class="dg-line" x1="450" y1="60" x2="450" y2="78" marker-end="url(#ad)"/>
+
+        <polygon class="dg-q" points="450,78 620,124 450,170 280,124"/>
+        <text class="dg-t" x="450" y="130" text-anchor="middle">업무 재현에 데이터가 필요한가?</text>
+        <line class="dg-line" x1="620" y1="124" x2="648" y2="124" marker-end="url(#ad)"/>
+        <text class="dg-yn" x="636" y="115" text-anchor="middle">NO</text>
+
+        <rect class="dg-green" x="656" y="92" width="234" height="80" rx="5"/>
+        <text class="dg-tag tg-green" x="672" y="117">CASE A · 가상 데이터</text>
+        <text class="dg-s" x="672" y="139">입력값만으로 동작</text>
+        <text class="dg-k" x="672" y="159">행내 데이터 협의 없음</text>
+
+        <line class="dg-line" x1="450" y1="170" x2="450" y2="196" marker-end="url(#ad)"/>
+        <text class="dg-yn" x="438" y="190" text-anchor="end">YES</text>
+
+        <polygon class="dg-q" points="450,196 620,242 450,288 280,242"/>
+        <text class="dg-t" x="450" y="248" text-anchor="middle">실제 데이터 특성이 필요한가?</text>
+        <line class="dg-line" x1="620" y1="242" x2="648" y2="242" marker-end="url(#ad)"/>
+        <text class="dg-yn" x="636" y="233" text-anchor="middle">NO</text>
+
+        <rect class="dg-hub" x="656" y="204" width="234" height="80" rx="5"/>
+        <text class="dg-tag tg-hub" x="672" y="229">CASE B · 합성 데이터</text>
+        <text class="dg-s" x="672" y="251">구조만 반출 · 표준 경로</text>
+        <text class="dg-k" x="672" y="271">값은 한 건도 나가지 않음</text>
+
+        <line class="dg-line" x1="450" y1="288" x2="450" y2="316" marker-end="url(#ad)"/>
+        <text class="dg-yn" x="438" y="310" text-anchor="end">YES</text>
+
+        <rect class="dg-red" x="250" y="316" width="400" height="86" rx="5"/>
+        <text class="dg-tag tg-red" x="268" y="342">CASE C · 비식별 실데이터</text>
+        <text class="dg-s" x="268" y="365">반출 적정성 검토 · 비식별화 선행</text>
+        <text class="dg-k" x="268" y="386">+3~5주 · 승인 여부 불확실</text>
+
+        <path class="dg-line" d="M650 359 H773 V290" marker-end="url(#ad)" stroke-dasharray="5 4"/>
+        <text class="dg-yn" x="783" y="332">Case B로 회귀</text>
+
+        <rect class="dg-note" x="10" y="422" width="880" height="38" rx="4"/>
+        <text class="dg-s" x="30" y="447">실데이터 요청을 받으면 Case B 가능성부터 확인합니다.</text>
+      </svg>
+    </div>
+  </figure>
+
+  <div class="tablewrap">
+    <table>
+      <thead>
+        <tr><th>케이스</th><th>업무 특성</th><th>행외로 나가는 것</th><th>개발 · 반입 방식</th><th>추가 소요</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="tk w-g">Case A<br>가상 데이터</td>
+          <td>사용자 입력값만으로 결과가 나옴<small>시뮬레이터, 계산기, 문서 생성기, 규정 안내</small></td>
+          <td class="w-g">없음</td>
+          <td>개발자가 임의로 지어낸 값으로 개발. 구조 제약도 없습니다<small>반입 후 — 데이터 연계 작업 없음. 반입 판정(03)에서 "행내 데이터 불필요" 경로</small></td>
+          <td class="tk w-g">없음</td>
+        </tr>
+        <tr>
+          <td class="tk w-h">Case B<br>합성 데이터<br><b>· 표준</b></td>
+          <td>업무 흐름·화면·집계는 재현해야 하나 값 자체는 실제일 필요 없음<small>랩 과제 대부분이 여기</small></td>
+          <td class="w-h"><b>데이터 구조만</b><small>테이블·컬럼명, 타입·길이, 코드값 목록, 컬럼 설명. 값은 0건</small></td>
+          <td>반출한 구조로 생성한 합성 데이터. 건수와 코드 분포는 통계 요약치로만 맞춥니다<small>반입 후 — 데이터 접근 어댑터만 실제 커넥터로 교체하고 연결 검증</small></td>
+          <td class="tk w-g">없음<small>구조 반출은 경량 확인</small></td>
+        </tr>
+        <tr>
+          <td class="tk w-r">Case C<br>비식별 실데이터</td>
+          <td>실제 값의 분포·이상치·표기 흔들림이 있어야 로직이 성립<small>원문 추출 정확도 검증 등</small></td>
+          <td class="w-r">비식별 처리된 실데이터 일부<small>반출 적정성 검토 승인이 선행</small></td>
+          <td>가명·마스킹 처리본으로 개발. 반출 범위·기간·파기 시점을 사전 확약<small>반입 후 — Case B와 동일. 다만 반출본 파기 확인이 추가</small></td>
+          <td class="tk w-r">+3~5주<small>승인 여부 자체가 불확실</small></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+
+  <h3>데이터 계약 · 행외와 행내가 같은 모양이어야 하는 이유</h3>
+  <figure>
+    <div class="figbox">
+      <svg class="svg-layer" viewBox="0 0 900 388" role="img" aria-label="데이터 계약 구조도. 행외 개발환경과 행내 AI-HUB가 화면 업무 로직, 데이터 접근 인터페이스, 어댑터의 세 계층으로 같은 구조를 가진다. 위 두 계층은 무변경으로 반입되고 최하단 어댑터만 목 데이터에서 행내 DB 커넥터로 교체된다">
+        <defs>
+          <marker id="al" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <polygon class="dg-head" points="0,1 10,5 0,9"/>
+          </marker>
+        </defs>
+
+        <text class="dg-k" x="10" y="28">행외 개발환경 · 인터넷망</text>
+        <text class="dg-k" x="510" y="28">행내 · AI-HUB</text>
+
+        <rect class="dg-plain" x="10" y="40" width="380" height="282" rx="6"/>
+        <rect class="dg-plain" x="510" y="40" width="380" height="282" rx="6"/>
+
+        <rect class="dg-start" x="30" y="64" width="340" height="62" rx="4"/>
+        <text class="dg-t" x="48" y="90">화면 · 업무 로직</text>
+        <text class="dg-s" x="48" y="112">생성형 AI 도구로 작성</text>
+
+        <rect class="dg-hub" x="30" y="142" width="340" height="62" rx="4"/>
+        <text class="dg-t" x="48" y="168">데이터 접근 인터페이스</text>
+        <text class="dg-s" x="48" y="190">함수 시그니처 · 스키마 고정</text>
+
+        <rect class="dg-amber" x="30" y="220" width="340" height="62" rx="4"/>
+        <text class="dg-t" x="48" y="246">합성 데이터 어댑터</text>
+        <text class="dg-s" x="48" y="268">합성 데이터 · CSV / JSON</text>
+
+        <rect class="dg-start" x="530" y="64" width="340" height="62" rx="4"/>
+        <text class="dg-t" x="548" y="90">화면 · 업무 로직</text>
+        <text class="dg-s" x="548" y="112">무변경</text>
+
+        <rect class="dg-hub" x="530" y="142" width="340" height="62" rx="4"/>
+        <text class="dg-t" x="548" y="168">데이터 접근 인터페이스</text>
+        <text class="dg-s" x="548" y="190">무변경</text>
+
+        <rect class="dg-green" x="530" y="220" width="340" height="62" rx="4"/>
+        <text class="dg-t" x="548" y="246">행내 DB 커넥터</text>
+        <text class="dg-s" x="548" y="268">일배치 적재 테이블 조회</text>
+
+        <line class="dg-line" x1="396" y1="95" x2="504" y2="95" marker-end="url(#al)" stroke-dasharray="5 4"/>
+        <text class="dg-yn" x="450" y="87" text-anchor="middle">무변경</text>
+        <line class="dg-line" x1="396" y1="173" x2="504" y2="173" marker-end="url(#al)" stroke-dasharray="5 4"/>
+        <text class="dg-yn" x="450" y="165" text-anchor="middle">무변경</text>
+        <line class="dg-line" x1="396" y1="251" x2="504" y2="251" marker-end="url(#al)"/>
+        <text class="dg-yn tg-red" x="450" y="243" text-anchor="middle">교체</text>
+
+        <rect class="dg-note" x="10" y="338" width="880" height="38" rx="4"/>
+        <text class="dg-s" x="30" y="363">교체되는 것은 최하단 어댑터 한 층뿐입니다. 이 구조를 지키지 않으면 반입 때 재작업 범위가 커집니다.</text>
+      </svg>
+    </div>
+  </figure>
+
+</section>
+
+<section id="life">
+  <div class="sec-head"><span class="sec-k">03</span><h2>행내 반입 판정 흐름</h2></div>
+  <p class="sec-sub">반입 신청 시점부터 연계 방식 확정까지의 판정 흐름입니다. <span class="nb">착수 판정</span> 시점에 가판정한 목적지를 여기서 확정합니다. 각 분기의 <span class="nb">상세 기준</span>은 배포지 결정(05)과 데이터 연계 방식 결정(07)에 있습니다.</p>
+  <figure>
+    <div class="figbox">
+      <svg class="svg-life" viewBox="0 0 900 812" role="img" aria-label="행내 반입 의사결정 흐름도. AI-HUB 여부와 행내 데이터 필요 여부를 예 아니오로 판정한 뒤 온라인 서비스와 배치 서비스로 갈라지고, 배치는 다시 데이터 양이 적은 경우와 많은 경우로 갈라져 온라인 연계, 파일 수령, 일배치 적재 세 결과에 도달">
+        <defs>
+          <marker id="lf" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <polygon class="dg-head" points="0,1 10,5 0,9"/>
+          </marker>
+        </defs>
+
+        <rect class="dg-term" x="255" y="16" width="240" height="42" rx="21"/>
+        <text class="dg-t" x="375" y="43" text-anchor="middle">행내 반입</text>
+        <line class="dg-line" x1="375" y1="58" x2="375" y2="78" marker-end="url(#lf)"/>
+
+        <polygon class="dg-q" points="375,78 525,121 375,164 225,121"/>
+        <text class="dg-t" x="375" y="126" text-anchor="middle">AI-HUB에 올리는가?</text>
+        <line class="dg-line" x1="525" y1="121" x2="552" y2="121" marker-end="url(#lf)"/>
+        <text class="dg-yn" x="538" y="112" text-anchor="middle">NO</text>
+        <rect class="dg-note" x="560" y="89" width="330" height="66" rx="5"/>
+        <text class="dg-tag tg-amber" x="578" y="114">비-AI-HUB</text>
+        <text class="dg-s" x="578" y="137">배포 방식 추후 정의</text>
+
+        <line class="dg-line" x1="375" y1="164" x2="375" y2="184" marker-end="url(#lf)"/>
+        <text class="dg-yn" x="363" y="180" text-anchor="end">YES</text>
+
+        <rect class="dg-hub" x="205" y="192" width="340" height="64" rx="5"/>
+        <text class="dg-tag tg-hub" x="223" y="218">AI-HUB 배포</text>
+        <text class="dg-s" x="223" y="241">배포 시 바이브랩스로 연계</text>
+        <line class="dg-line" x1="375" y1="256" x2="375" y2="276" marker-end="url(#lf)"/>
+
+        <polygon class="dg-q" points="375,276 525,319 375,362 225,319"/>
+        <text class="dg-t" x="375" y="324" text-anchor="middle">행내 데이터가 필요한가?</text>
+        <line class="dg-line" x1="525" y1="319" x2="552" y2="319" marker-end="url(#lf)"/>
+        <text class="dg-yn" x="538" y="310" text-anchor="middle">NO</text>
+        <rect class="dg-green" x="560" y="287" width="330" height="66" rx="5"/>
+        <text class="dg-tag tg-green" x="578" y="312">데이터 협의 없음 · 2~3주</text>
+        <text class="dg-s" x="578" y="335">반입 점검 후 바로 게이트로</text>
+
+        <line class="dg-line" x1="375" y1="362" x2="375" y2="382" marker-end="url(#lf)"/>
+        <text class="dg-yn" x="363" y="378" text-anchor="end">YES</text>
+
+        <polygon class="dg-q" points="375,382 525,425 375,468 225,425"/>
+        <text class="dg-t" x="375" y="430" text-anchor="middle">온라인 서비스인가, 배치인가?</text>
+
+        <path class="dg-line" d="M375 468 V486 H150"/>
+        <path class="dg-line" d="M375 486 H600"/>
+        <line class="dg-line" x1="150" y1="486" x2="150" y2="640" marker-end="url(#lf)"/>
+        <line class="dg-line" x1="600" y1="486" x2="600" y2="510" marker-end="url(#lf)"/>
+        <text class="dg-yn" x="258" y="478" text-anchor="middle">온라인 서비스</text>
+        <text class="dg-yn" x="500" y="478" text-anchor="middle">배치 서비스</text>
+
+        <polygon class="dg-q" points="600,510 750,553 600,596 450,553"/>
+        <text class="dg-t" x="600" y="558" text-anchor="middle">데이터 양이 적은가?</text>
+
+        <path class="dg-line" d="M600 596 V614 H450"/>
+        <path class="dg-line" d="M600 614 H750"/>
+        <line class="dg-line" x1="450" y1="614" x2="450" y2="640" marker-end="url(#lf)"/>
+        <line class="dg-line" x1="750" y1="614" x2="750" y2="640" marker-end="url(#lf)"/>
+        <text class="dg-yn" x="512" y="606" text-anchor="middle">적다</text>
+        <text class="dg-yn" x="694" y="606" text-anchor="middle">많다</text>
+
+        <rect class="dg-off" x="10" y="640" width="280" height="92" rx="5"/>
+        <text class="dg-tag tg-off" x="28" y="666">온라인 연계</text>
+        <text class="dg-s" x="28" y="689">마트 조회 권한 · 1~2주</text>
+        <text class="dg-s" x="28" y="712">연계 API · 8주+</text>
+
+        <rect class="dg-green" x="310" y="640" width="280" height="92" rx="5"/>
+        <text class="dg-tag tg-green" x="328" y="666">파일 수령</text>
+        <text class="dg-s" x="328" y="689">.dat / CSV · 2~3주</text>
+        <text class="dg-s" x="328" y="712">소량 · 저빈도</text>
+
+        <rect class="dg-hub" x="610" y="640" width="280" height="92" rx="5"/>
+        <text class="dg-tag tg-hub" x="628" y="666">BDP 직접 연결 · 일배치</text>
+        <text class="dg-s" x="628" y="689">전용 테이블 · 4~6주</text>
+        <text class="dg-s" x="628" y="712">대량 정기 갱신 · 표준</text>
+
+        <rect class="dg-note" x="10" y="758" width="880" height="40" rx="4"/>
+        <text class="dg-s" x="30" y="783">개인정보 포함 시 모든 경로 공통 · 가명처리와 이용 근거 심의 +2~4주</text>
+      </svg>
+    </div>
+  </figure>
+</section>
+
+<section id="axes">
+  <div class="sec-head"><span class="sec-k">04</span><h2>따로 결정하는 두 가지</h2></div>
+  <p class="sec-sub">배포지와 데이터 연계는 서로 종속되지 않습니다. 따로 물어 따로 결정합니다.</p>
+  <div class="axes">
+    <div class="axis axis-1">
+      <div class="axis-h"><div class="ak">배포지</div><div class="at"><span class="nb">AI-HUB</span>인가, 아닌가</div></div>
+      <div class="axis-b">
+        <dl>
+          <div><dt>결정하는 것</dt><dd>배포 연계 경로, 환경 정합화 부담, 운영 책임 소재, 보안 통제의 표준화 여부</dd></div>
+          <div><dt>리드타임 영향</dt><dd><span class="nb">AI-HUB</span>는 정형화되어 예측 가능. <span class="nb">비-AI-HUB</span>는 산정 불가</dd></div>
+          <div><dt>원칙</dt><dd><span class="nb">AI-HUB</span>가 기본값. <span class="nb">AI-HUB</span>면 배포 시 바이브랩스로 연계합니다. <span class="nb">비-AI-HUB</span> 경로는 <b>추후 정의</b></dd></div>
+        </dl>
+      </div>
+    </div>
+    <div class="axis axis-2">
+      <div class="axis-h"><div class="ak">데이터 연계</div><div class="at">행내 DB를 쓰는가, 어떻게</div></div>
+      <div class="axis-b">
+        <dl>
+          <div><dt>결정하는 것</dt><dd>온라인·배치 구분, 데이터혁신부·원천 부서·개인정보 담당과의 협의 범위</dd></div>
+          <div><dt>리드타임 영향</dt><dd>1~2주(마트 권한)에서 8주+(연계 API)까지</dd></div>
+          <div><dt>원칙</dt><dd>온라인이냐 배치냐를 먼저 판정. 배치로 충분하면 리드타임이 절반으로 줄어듭니다</dd></div>
+        </dl>
+      </div>
+    </div>
+  </div>
+  <div class="note">
+    <p>두 질문은 <b><span class="nb">착수 판정</span> 시점</b>에 가판정하고 <b>개발 착수 전</b>에 확정합니다. 완성 후에 확인하면 목적지에 맞추기 위한 재작업이 발생합니다.</p>
+  </div>
+</section>
+
+<section id="dest">
+  <div class="sec-head"><span class="sec-k">05</span><h2>배포지 결정</h2></div>
+  <p class="sec-sub"><span class="nb">비-AI-HUB</span> 사유는 아래 네 가지만 인정하고, 그 밖의 이유는 재설계로 되돌립니다. <span class="nb">비-AI-HUB</span> 배포 방식 자체는 <b>아직 미정</b>이므로, 해당 판정이 나오면 사유를 기록하고 보류합니다.</p>
+  <figure>
+    <div class="figbox">
+      <svg class="svg-tree" viewBox="0 0 840 512" role="img" aria-label="배포지 결정 트리. AI-HUB 표준 규격 적합 여부와 비허브 불가피 사유 여부를 물어 AI-HUB 기본 경로, 비허브 예외 경로, 재설계 또는 정식 IT 이관으로 분기">
+        <defs>
+          <marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <polygon class="dg-head" points="0,1 10,5 0,9"/>
+          </marker>
+        </defs>
+
+        <rect class="dg-start" x="80" y="18" width="350" height="44" rx="5"/>
+        <text class="dg-t" x="255" y="46" text-anchor="middle">배포지 상담 · 개발 착수 전</text>
+        <line class="dg-line" x1="255" y1="62" x2="255" y2="96" marker-end="url(#a1)"/>
+
+        <rect class="dg-q" x="80" y="104" width="350" height="80" rx="5"/>
+        <text class="dg-k" x="98" y="126">Q1</text>
+        <text class="dg-t" x="255" y="148" text-anchor="middle">AI-HUB 표준 규격으로 담기는가?</text>
+        <text class="dg-s" x="255" y="170" text-anchor="middle">웹 UI·API · 컨테이너화 · 자원 상한 내</text>
+
+        <line class="dg-line" x1="430" y1="144" x2="472" y2="144" marker-end="url(#a1)"/>
+        <text class="dg-k" x="451" y="136" text-anchor="middle">예</text>
+        <rect class="dg-hub" x="480" y="104" width="350" height="80" rx="5"/>
+        <text class="dg-tag tg-hub" x="498" y="130">AI-HUB · 기본 경로</text>
+        <text class="dg-s" x="498" y="154">수용 심사 → 규격 정합 → 도메인·SSO</text>
+        <text class="dg-k" x="498" y="174">환경 정합화 최소 · 우리 부서 단독</text>
+
+        <line class="dg-line" x1="255" y1="184" x2="255" y2="216" marker-end="url(#a1)"/>
+        <text class="dg-k" x="268" y="205">아니오</text>
+
+        <rect class="dg-q" x="80" y="224" width="350" height="100" rx="5"/>
+        <text class="dg-k" x="98" y="246">Q2</text>
+        <text class="dg-t" x="255" y="268" text-anchor="middle">비-AI-HUB가 불가피한 사유가 있는가?</text>
+        <text class="dg-s" x="255" y="292" text-anchor="middle">① 기존 시스템 결합  ② 특수 하드웨어</text>
+        <text class="dg-s" x="255" y="313" text-anchor="middle">③ 망·구역 제약  ④ 허브 자원 상한 초과</text>
+
+        <line class="dg-line" x1="430" y1="274" x2="472" y2="274" marker-end="url(#a1)"/>
+        <text class="dg-k" x="451" y="266" text-anchor="middle">예</text>
+        <rect class="dg-note" x="480" y="224" width="350" height="100" rx="5"/>
+        <text class="dg-tag tg-amber" x="498" y="250">비-AI-HUB · 배포 방식 추후 정의</text>
+        <text class="dg-s" x="498" y="274">서버 확보 · 보안 통제 · 운영 주체 미확정</text>
+        <text class="dg-k" x="498" y="295">현 단계에서는 사유만 기록하고 보류</text>
+        <text class="dg-k" x="498" y="314">IT인프라·정보보호 협의 절차 수립 후 재개</text>
+
+        <line class="dg-line" x1="255" y1="324" x2="255" y2="356" marker-end="url(#a1)"/>
+        <text class="dg-k" x="268" y="345">아니오</text>
+
+        <rect class="dg-amber" x="80" y="364" width="350" height="80" rx="5"/>
+        <text class="dg-tag tg-amber" x="98" y="390">재설계 후 AI-HUB</text>
+        <text class="dg-s" x="98" y="414">규격에 맞게 구조를 고쳐 Q1으로</text>
+        <text class="dg-k" x="98" y="434">BRM 코칭 대상</text>
+
+        <line class="dg-line" x1="430" y1="404" x2="472" y2="404" marker-end="url(#a1)"/>
+        <text class="dg-k" x="451" y="396" text-anchor="middle">불가</text>
+        <rect class="dg-red" x="480" y="364" width="350" height="80" rx="5"/>
+        <text class="dg-tag tg-red" x="498" y="390">정식 IT 이관 검토</text>
+        <text class="dg-s" x="498" y="414">랩 범위 초과 · 요건을 IT로 이관</text>
+        <text class="dg-k" x="498" y="434">2인 합의 후 통보</text>
+
+        <rect class="dg-note" x="80" y="466" width="750" height="38" rx="4"/>
+        <text class="dg-s" x="100" y="491">비-AI-HUB 판정 시 사유 코드와 대체 검토 내역을 티켓에 기록합니다.</text>
+      </svg>
+    </div>
+  </figure>
+</section>
+
+<section id="nonhub">
+  <div class="sec-head"><span class="sec-k">06</span><h2>환경 정합화 체크리스트</h2></div>
+  <p class="sec-sub">행외 개발(02) 결과물을 행내에 반입할 때 깨지는 지점 12개. <span class="nb">AI-HUB</span> 표준 이미지를 쓰지 않는 경우 전부 개별 확인 대상입니다. 오른쪽 표시는 사후 발견 시의 비용입니다.</p>
+  <details class="chk">
+    <summary class="chk-h"><span class="sk">반입 전 확인</span><span class="sn">반입 전 정합화 12항목(예시)</span></summary>
+    <ul class="rl">
+      <li><span class="x">01</span><div><b>런타임 버전<span class="cost">재작업</span></b><p>행내 표준 런타임 버전 목록을 개발 시작 전에 받아 그 버전으로 만듭니다.</p></div></li>
+      <li><span class="x">02</span><div><b>외부 패키지 의존성<span class="cost">재작업</span></b><p>폐쇄망에서는 설치 명령이 동작하지 않습니다. 사내 저장소 미러 보유 목록을 사전 제공하고, 없는 패키지는 오프라인 번들로 함께 반입합니다.</p></div></li>
+      <li><span class="x">03</span><div><b>CDN 참조<span class="cost">재작업</span></b><p>웹폰트·JS·CSS의 외부 CDN 링크를 전부 로컬 번들로 교체합니다.</p></div></li>
+      <li><span class="x">04</span><div><b>외부 API 호출<span class="cost">재작업</span></b><p>외부 <span class="nb">LLM API</span>를 포함한 모든 아웃바운드 호출을 제거하거나 사내 대체 엔드포인트로 바꿉니다. 행내 가용 모델·엔드포인트 목록을 상담 때 함께 안내합니다.</p></div></li>
+      <li><span class="x">05</span><div><b>OS · 아키텍처 차이<span class="cost lo">경미</span></b><p>운영 환경이 Linux인 경우 경로 구분자, 파일명 대소문자 구분, 한글 파일명을 점검합니다.</p></div></li>
+      <li><span class="x">06</span><div><b>문자셋<span class="cost">재작업</span></b><p>원천이 EUC-KR·CP949인 경우 UTF-8 변환 지점을 명시적으로 설계합니다. 데이터혁신부 협의 때 함께 확인합니다.</p></div></li>
+      <li><span class="x">07</span><div><b>DB 커넥터와 SQL 방언<span class="cost">재작업</span></b><p>개발용 경량 DB로 만든 쿼리는 행내 DBMS에서 그대로 돌지 않습니다. 드라이버와 방언을 초기에 확정하고 데이터 접근 계층을 분리합니다.</p></div></li>
+      <li><span class="x">08</span><div><b>인증 연동<span class="cost">재작업</span></b><p>자체 로그인 화면은 원칙적으로 불가. 사내 통합인증 연동을 전제로 설계합니다.</p></div></li>
+      <li><span class="x">09</span><div><b>네트워크 · 포트 · 인증서<span class="cost lo">협의</span></b><p>아웃바운드 차단, 포트 개방 신청, 프록시 설정, 사내 CA 인증서 적용. 신청 리드타임을 일정에 반영합니다.</p></div></li>
+      <li><span class="x">10</span><div><b>시간대 · 영업일 기준<span class="cost lo">경미</span></b><p>서버 타임존과 영업일·마감시각 기준을 확정합니다. 배치는 원천 마감 이후로 잡습니다.</p></div></li>
+      <li><span class="x">11</span><div><b>오픈소스 라이선스<span class="cost">차단 가능</span></b><p>반입 전에 사용 라이브러리의 라이선스를 확인합니다. 카피레프트 계열은 반입이 막힐 수 있습니다.</p></div></li>
+      <li><span class="x">12</span><div><b>반입 절차<span class="cost lo">협의</span></b><p>소스 반입 신청, 악성코드 검사, 시큐어코딩 점검. <span class="nb">AI-HUB</span> 경로에도 동일하게 적용됩니다.</p></div></li>
+    </ul>
+  </details>
+</section>
+
+<section id="data">
+  <div class="sec-head"><span class="sec-k">07</span><h2>데이터 연계 방식 결정</h2></div>
+  <p class="sec-sub">데이터혁신부에 넘기기 전에 <b>온라인인지 배치인지</b>, 배치면 <b>양이 얼마인지</b>까지 정하고 들어갑니다. 컬럼 목록과 컬럼별 사용 목적은 협의 전에 확정합니다.</p>
+  <figure>
+    <div class="figbox">
+      <svg class="svg-tree" viewBox="0 0 900 636" role="img" aria-label="데이터 연계 방식 결정 트리. 온라인 서비스와 배치 서비스로 갈라지고 배치는 데이터 양이 적은 경우와 많은 경우로 갈라져 온라인 연계, 파일 수령, 일배치 적재 세 갈래로 분기">
+        <defs>
+          <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <polygon class="dg-head" points="0,1 10,5 0,9"/>
+          </marker>
+        </defs>
+
+        <rect class="dg-start" x="285" y="16" width="330" height="44" rx="5"/>
+        <text class="dg-t" x="450" y="44" text-anchor="middle">행내 데이터 연계 필요 확정</text>
+        <line class="dg-line" x1="450" y1="60" x2="450" y2="78" marker-end="url(#a2)"/>
+
+        <polygon class="dg-q" points="450,78 600,121 450,164 300,121"/>
+        <text class="dg-t" x="450" y="126" text-anchor="middle">온라인 서비스인가?</text>
+
+        <path class="dg-line" d="M450 164 V182 H150"/>
+        <path class="dg-line" d="M450 182 H600"/>
+        <line class="dg-line" x1="150" y1="182" x2="150" y2="440" marker-end="url(#a2)"/>
+        <line class="dg-line" x1="600" y1="182" x2="600" y2="210" marker-end="url(#a2)"/>
+        <text class="dg-yn" x="293" y="174" text-anchor="middle">온라인 서비스</text>
+        <text class="dg-yn" x="527" y="174" text-anchor="middle">배치 서비스</text>
+
+        <polygon class="dg-q" points="600,210 750,253 600,296 450,253"/>
+        <text class="dg-t" x="600" y="258" text-anchor="middle">데이터 양이 적은가?</text>
+
+        <path class="dg-line" d="M600 296 V314 H450"/>
+        <path class="dg-line" d="M600 314 H750"/>
+        <line class="dg-line" x1="450" y1="314" x2="450" y2="440" marker-end="url(#a2)"/>
+        <line class="dg-line" x1="750" y1="314" x2="750" y2="440" marker-end="url(#a2)"/>
+        <text class="dg-yn" x="512" y="306" text-anchor="middle">적다</text>
+        <text class="dg-yn" x="694" y="306" text-anchor="middle">많다</text>
+
+        <rect class="dg-off" x="10" y="440" width="280" height="116" rx="5"/>
+        <text class="dg-tag tg-off" x="28" y="466">온라인 연계</text>
+        <text class="dg-s" x="28" y="489">마트 조회 권한 · SQL 질의</text>
+        <text class="dg-s" x="28" y="511">1~2주 · 우선 검토</text>
+        <text class="dg-s" x="28" y="536">연계 API · 8주+</text>
+
+        <rect class="dg-green" x="310" y="440" width="280" height="116" rx="5"/>
+        <text class="dg-tag tg-green" x="328" y="466">파일 수령</text>
+        <text class="dg-s" x="328" y="489">.dat / CSV · 2~3주</text>
+        <text class="dg-s" x="328" y="511">전달 주기·문자셋 합의</text>
+        <text class="dg-s" x="328" y="536">수신 실패 처리 정의</text>
+
+        <rect class="dg-hub" x="610" y="440" width="280" height="116" rx="5"/>
+        <text class="dg-tag tg-hub" x="628" y="466">BDP 직접 연결 · 일배치</text>
+        <text class="dg-s" x="628" y="489">4~6주 · 정기 갱신 표준</text>
+        <text class="dg-s" x="628" y="511">전용 테이블 · 실패 재처리</text>
+        <text class="dg-s" x="628" y="536">1회성이면 일괄 적재 · 3~4주</text>
+
+        <rect class="dg-note" x="10" y="582" width="880" height="40" rx="4"/>
+        <text class="dg-s" x="30" y="607">개인정보 포함 시 모든 경로 공통 · 가명처리와 이용 근거 심의 +2~4주</text>
+      </svg>
+    </div>
+  </figure>
+</section>
+
+<section id="compare">
+  <div class="sec-head"><span class="sec-k">08</span><h2>연계 방식별 협의 내용</h2></div>
+  <p class="sec-sub">트리 결과가 정해지면 협의 상대와 안건이 따라옵니다.</p>
+  <div class="tablewrap">
+    <table>
+      <thead>
+        <tr><th>방식</th><th>적정 조건</th><th>협의 상대</th><th>우리가 챙길 것</th><th>리드타임</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="tk w-g">온라인<br>마트 조회 권한</td>
+          <td>온라인 · 기존 정보계·DW로 충족<small><span class="nb">SQL 질의</span>로 실시간 응답. 온라인이면 가장 먼저 확인</small></td>
+          <td>데이터혁신부<br>마트 담당</td>
+          <td>필요 컬럼이 마트에 실제로 있는지 사전 확인, 조회 권한 범위<small>주의 — 마트 갱신 주기가 서비스 요구와 맞는지</small></td>
+          <td class="tk w-g">1~2주</td>
+        </tr>
+        <tr>
+          <td class="tk w-r">온라인<br>연계 API</td>
+          <td>온라인 · 실시간 건별 조회<small>마트로 불가한 경우에만</small></td>
+          <td>데이터혁신부<br>원천 부서<br>IT · EAI 담당</td>
+          <td>인터페이스 규격, 호출량 상한, 장애 시 대체 동작, 원천 SLA<small>주의 — 랩에서 진행할 근거를 별도 기록. 대부분 IT 이관 대상</small></td>
+          <td class="tk w-r">8주+</td>
+        </tr>
+        <tr>
+          <td class="tk w-g">배치 · 소량<br>파일 수령</td>
+          <td>배치 · 데이터 양 소량<small>데이터혁신부에서 .dat / CSV 로 전달</small></td>
+          <td>데이터혁신부<br>원천 부서</td>
+          <td>추출 조건, 파일 포맷·문자셋, 전달 경로와 주기, 파기 시점<small>주의 — 파일 미수신 시 화면 동작을 반드시 정의</small></td>
+          <td class="tk w-g">2~3주</td>
+        </tr>
+        <tr>
+          <td class="tk w-a">배치<br>1회 일괄 적재</td>
+          <td>배치 · 대량이나 1회성<small>초기 적재 · 단발 분석</small></td>
+          <td>데이터혁신부<br>원천 부서</td>
+          <td>추출 조건, 적재 테이블 설계, 원천 부하 영향, 파기 시점<small>주의 — 재요청이 들어오면 BDP 직접 연결로 전환</small></td>
+          <td class="tk w-a">3~4주</td>
+        </tr>
+        <tr>
+          <td class="tk w-h">배치 · 대량<br>BDP 직접 연결</td>
+          <td>배치 · 대량 정기 갱신<small>BDP 직접 연결 후 일배치 사용. 랩의 표준 경로</small></td>
+          <td>데이터혁신부<br>원천 부서<br>개인정보 담당</td>
+          <td>추출 쿼리 조건, 배치 윈도우, 적재 테이블 설계, 증분·전량 여부, 실패 재처리<small>주의 — 배치 시각은 원천 마감 이후. 원천 부하 영향 사전 확인</small></td>
+          <td class="tk w-h">4~6주</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="road">
+  <div class="sec-head"><span class="sec-k">09</span><h2>표준 시나리오 14주 로드맵</h2></div>
+  <p class="sec-sub">접수부터 오픈까지. <b><span class="nb">AI-HUB</span> 배포 + BDP 일배치 연계 + 개인정보 포함</b>인 <span class="nb">서비스 기준</span>입니다. <b><span class="nb">W-3~W-1</span></b>이 인입·구체화 구간, <b>W0</b>이 착수 승인과 개발 착수 시점입니다.</p>
+  <div class="gantt" style="--cols:14">
+    <div class="gantt-inner wide">
+      <div class="g-head">
+        <div class="hl">단계 · 주관</div>
+        <div class="g-weeks">
+          <span class="pre">W-3</span><span class="pre">W-2</span><span class="pre">W-1</span>
+          <span>W0</span><span>W1</span><span>W2</span><span>W3</span><span>W4</span><span>W5</span>
+          <span>W6</span><span>W7</span><span>W8</span><span>W9</span><span>W10</span>
+        </div>
+      </div>
+      <div class="g-row"><div class="g-lab"><b>채널 인입 · 요건 구체화</b><span>BRM + 현업</span></div>
+        <div class="track"><div class="bar pre" style="--s:0;--d:2"></div></div></div>
+      <div class="g-row edge"><div class="g-lab"><b><span class="nb">착수 판정</span> · 승인</b><span>BRM · 목적지 사전 판정</span></div>
+        <div class="track"><div class="bar pre" style="--s:2;--d:1"></div></div></div>
+      <div class="g-row"><div class="g-lab"><b>목적지 상담 · 규격 브리핑</b><span>BRM · 개발 착수 전</span></div>
+        <div class="track"><div class="bar us" style="--s:3;--d:1"></div></div></div>
+      <div class="g-row"><div class="g-lab"><b>데이터 계약 확정</b><span>BRM + 현업</span></div>
+        <div class="track"><div class="bar us" style="--s:4;--d:1"></div></div></div>
+      <div class="g-row"><div class="g-lab"><b>행외 개발 · <span class="nb">생성형 AI</span> 툴</b><span>현업 · 행외</span></div>
+        <div class="track"><div class="bar biz" style="--s:4;--d:5">합성 데이터 · 목적지 규격 반영</div></div></div>
+      <div class="g-row"><div class="g-lab"><b>데이터혁신부 협의</b><span>협의처</span></div>
+        <div class="track"><div class="bar ext" style="--s:4;--d:4">연계 방식 확정</div></div></div>
+      <div class="g-row"><div class="g-lab"><b>원천 시스템 부서 동의</b><span>협의처</span></div>
+        <div class="track"><div class="bar ext" style="--s:5;--d:2"></div></div></div>
+      <div class="g-row"><div class="g-lab"><b>개인정보 이용 심의</b><span>협의처</span></div>
+        <div class="track"><div class="bar ext" style="--s:5;--d:3">가명처리</div></div></div>
+      <div class="g-row"><div class="g-lab"><b><span class="nb">AI-HUB</span> 수용 심사 · 자원</b><span>우리 부서</span></div>
+        <div class="track"><div class="bar us" style="--s:7;--d:2"></div></div></div>
+      <div class="g-row"><div class="g-lab"><b>소스 반입 · 취약점 점검</b><span>협의처 · 정보보호</span></div>
+        <div class="track"><div class="bar ext" style="--s:8;--d:2"></div></div></div>
+      <div class="g-row"><div class="g-lab"><b>환경 정합화 · 배치 개발</b><span>현업 + 데이터혁신부</span></div>
+        <div class="track"><div class="bar biz" style="--s:9;--d:3">적재 · 재처리 검증</div></div></div>
+      <div class="g-row"><div class="g-lab"><b>통합 검증 · 실패 데모</b><span>BRM</span></div>
+        <div class="track"><div class="bar us" style="--s:12;--d:1"></div></div></div>
+      <div class="g-row"><div class="g-lab"><b>게이트 심의 · 오픈</b><span>BRM + 현업</span></div>
+        <div class="track"><div class="bar us" style="--s:13;--d:1"></div></div></div>
+      <div class="legend">
+        <span><i class="i-pre"></i>인입 · 구체화 구간</span>
+        <span><i class="i-us"></i>우리 부서 · BRM</span>
+        <span><i class="i-biz"></i>현업 부서</span>
+        <span><i class="i-ext"></i>협의처</span>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<section id="who">
+  <div class="sec-head"><span class="sec-k">10</span><h2>협의처 지도</h2></div>
+  <p class="sec-sub">위에서 아래로 시간 순입니다. 데이터혁신부만 개발과 동시에 착수합니다.</p>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>협의처</th><th>언제</th><th>안건</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="tk">붐업페스타<br>주관 부서</td>
+          <td><span class="nb">CH-2</span> 수상작 이관 시점</td>
+          <td>서비스화 대상 선정 합의 · 수상자 현 소속 확인 · 미선정분 통보</td>
+        </tr>
+        <tr>
+          <td class="tk">현업 수행 부서</td>
+          <td><span class="nb">착수 판정</span> 전</td>
+          <td>담당자 지정 · 부서장 착수 동의 · 행외 개발 인력과 시간 확보</td>
+        </tr>
+        <tr>
+          <td class="tk w-h">우리 부서<br><span class="nb">AI-HUB</span> 운영</td>
+          <td>배포지 확정 직후</td>
+          <td>수용 심사 · 자원 할당 · 도메인 발급 · SSO 연동</td>
+        </tr>
+        <tr>
+          <td class="tk w-h">데이터혁신부</td>
+          <td><b>데이터 필요 확정 즉시<br>· 개발 착수와 동시</b></td>
+          <td>연계 방식 · 제공 범위 · 추출 조건 · 배치 윈도우</td>
+        </tr>
+        <tr>
+          <td class="tk">원천 시스템<br>담당 부서</td>
+          <td>데이터혁신부 협의와 병행</td>
+          <td>테이블 오너 동의 · 조회 부하 영향</td>
+        </tr>
+        <tr>
+          <td class="tk">개인정보 담당<br>· 준법</td>
+          <td>개인정보 포함 시<br>데이터 요건 확정 직후</td>
+          <td>이용 근거 · 가명처리 · 영향평가 · 보관과 파기</td>
+        </tr>
+        <tr>
+          <td class="tk">정보보호부</td>
+          <td>반입 전</td>
+          <td>소스 반입 · 악성코드 검사 · 취약점 점검 · 계정 · 포트</td>
+        </tr>
+        <tr>
+          <td class="tk w-r">IT 인프라</td>
+          <td>비-<span class="nb">AI-HUB</span> 경로<br>· 절차 수립 후</td>
+          <td>서버 자원 · 자산 등록 · 백업 · 모니터링 편입</td>
+        </tr>
+        <tr>
+          <td class="tk">현업 부서장</td>
+          <td>오픈 직전</td>
+          <td>오너십 확인 · 잔여 리스크 수용 · 운영 인력 지정</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+
+<button type="button" id="pdfbtn" class="pdfbtn">PDF로 저장</button>
+</main>
+</div>
+</div>
+<script>
+/* PDF 저장 — 외부 통신 없음. 인쇄 전 접힌 목록을 펼치고, 끝나면 되돌린다. */
+(function () {
+  var reopened = [];
+  function expand() {
+    reopened = [];
+    var list = document.querySelectorAll('details:not([open])');
+    for (var i = 0; i < list.length; i++) { reopened.push(list[i]); list[i].open = true; }
+  }
+  function restore() {
+    for (var i = 0; i < reopened.length; i++) { reopened[i].open = false; }
+    reopened = [];
+  }
+  window.addEventListener('beforeprint', expand);
+  window.addEventListener('afterprint', restore);
+  var btn = document.getElementById('pdfbtn');
+  if (btn) {
+    btn.addEventListener('click', function () {
+      expand();                 /* beforeprint 미지원 브라우저 대비 */
+      window.print();
+    });
+  }
+})();
+</script>
+</body>
+</html>

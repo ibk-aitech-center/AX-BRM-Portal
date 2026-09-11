@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AX-BRM 스타일 카탈로그 (preview)</title>
+<!-- 실제 공유 CSS 를 그대로 로드 — 복사본 금지 (토큰 드리프트 검증용) -->
+<link rel="stylesheet" href="node_modules/pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css">
+<link rel="stylesheet" href="node_modules/@fontsource-variable/noto-serif-kr/index.css">
+<link rel="stylesheet" href="node_modules/d2coding/d2coding-subset.css">
+<link rel="stylesheet" href="src/styles/tokens.css">
+<link rel="stylesheet" href="src/styles/base.css">
+<link rel="stylesheet" href="src/styles/components.css">
+<link rel="stylesheet" href="src/styles/utilities.css">
+<style>
+  .sw { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:12px }
+  .swatch { border:1px solid var(--line); border-radius:var(--radius-sm); overflow:hidden; font-size:12px }
+  .swatch > div:first-child { height:56px }
+  .swatch > div:last-child { padding:8px 10px; background:var(--surface) }
+  section { margin: 48px 0 }
+  h2 { font-size:20px; margin-bottom:16px }
+</style>
+</head>
+<body>
+<div class="container" style="padding:40px 24px 120px">
+  <p class="eyebrow">AX-BRM · 살아있는 스타일 카탈로그</p>
+  <h1 class="serif" style="font-size:34px;margin-top:8px">토큰과 컴포넌트가 한 화면에</h1>
+  <p class="text-sub mt-sm">이 페이지가 실제 화면과 다르게 보이면 토큰 드리프트가 생긴 것이다. (개발 서버 없이 파일로 열어도 됨: <code>npx vite preview</code> 또는 정적 서버)</p>
+
+  <section>
+    <h2>컬러</h2>
+    <div class="sw">
+      <div class="swatch"><div style="background:var(--brand-500)"></div><div><b>--brand-500</b><br>#1C5D5F 액션색</div></div>
+      <div class="swatch"><div style="background:var(--brand-600)"></div><div><b>--brand-600</b><br>hover</div></div>
+      <div class="swatch"><div style="background:var(--brand-300)"></div><div><b>--brand-300</b><br>활성 테두리</div></div>
+      <div class="swatch"><div style="background:var(--brand-50)"></div><div><b>--brand-50</b><br>선택 배경</div></div>
+      <div class="swatch"><div style="background:var(--ink-50)"></div><div><b>--ink-50 / --bg</b><br>캔버스</div></div>
+      <div class="swatch"><div style="background:var(--mint)"></div><div><b>--mint</b><br>카드 표면</div></div>
+      <div class="swatch"><div style="background:var(--blush)"></div><div><b>--blush</b><br>카드 표면</div></div>
+      <div class="swatch"><div style="background:var(--sand)"></div><div><b>--sand</b><br>팁 띠</div></div>
+      <div class="swatch"><div style="background:var(--mint-deep)"></div><div><b>--mint-deep</b><br>장식 전용</div></div>
+      <div class="swatch"><div style="background:var(--blush-deep)"></div><div><b>--blush-deep</b><br>장식 전용</div></div>
+      <div class="swatch"><div style="background:var(--ink-900)"></div><div><b>--ink-900</b><br>본문</div></div>
+      <div class="swatch"><div style="background:var(--ink-700)"></div><div><b>--ink-700</b><br>보조 본문</div></div>
+      <div class="swatch"><div style="background:var(--text-muted)"></div><div><b>--text-muted</b><br>캡션 (AA)</div></div>
+      <div class="swatch"><div style="background:var(--ink-500)"></div><div><b>--ink-500</b><br>본문 금지</div></div>
+      <div class="swatch"><div style="background:var(--success-bg);color:var(--success);display:grid;place-items:center;font-weight:700">success</div><div>--success / -bg</div></div>
+      <div class="swatch"><div style="background:var(--warning-bg);color:var(--warning);display:grid;place-items:center;font-weight:700">warning</div><div>--warning / -bg</div></div>
+      <div class="swatch"><div style="background:var(--danger-bg);color:var(--danger);display:grid;place-items:center;font-weight:700">danger</div><div>--danger / -bg</div></div>
+      <div class="swatch"><div style="background:var(--info-bg);color:var(--info);display:grid;place-items:center;font-weight:700">info</div><div>--info / -bg</div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>타이포</h2>
+    <p class="serif" style="font-size:40px">AI, 잘 몰라도 괜찮아요. — 히어로(세리프 500)</p>
+    <p style="font-size:20px;font-weight:700">이 아이디어는 어떻게 시작됐나요? — 질문 대사 20/700</p>
+    <p>본문 15px/400 · line-height 1.6 · keep-all — 은행 밖에서 먼저 만들고, 검사를 거쳐 안으로 들여와요.</p>
+    <p class="text-sm text-muted">캡션 13.5px · --text-muted</p>
+    <p class="eyebrow">눈썹 라벨 · D2Coding</p>
+    <p><span class="identifier">BRM-2026-0001</span> · <span class="num">1,234,567</span></p>
+  </section>
+
+  <section>
+    <h2>버튼</h2>
+    <div class="row wrap">
+      <button class="btn btn-primary">5분 상담 시작하기</button>
+      <button class="btn btn-secondary">어떻게 진행되나요?</button>
+      <button class="btn btn-ghost">나중에 이어하기</button>
+      <button class="btn btn-danger">지우기</button>
+      <button class="btn btn-primary btn-lg">AX-BRM에 신청하기</button>
+      <button class="btn btn-secondary btn-sm">미리보기</button>
+      <button class="btn btn-icon" aria-label="수정">✎</button>
+      <button class="btn btn-primary" disabled>비활성</button>
+    </div>
+    <div class="row wrap mt-md">
+      <button class="chip">검토 대기 <b>3</b></button><button class="chip" aria-pressed="true">전체</button>
+      <span class="badge" data-tone="info">📨 신청 완료</span><span class="badge" data-tone="success">✅ 진행 확정</span><span class="badge" data-tone="warning">⏸️ 보류</span><span class="badge" data-tone="danger">⛔ 반려</span><span class="badge" data-tone="brand">🛠️ 개발 중</span><span class="badge" data-tone="neutral">초안</span>
+    </div>
+  </section>
+
+  <section>
+    <h2>입력 · 선택 카드</h2>
+    <div class="grid-2">
+      <div class="stack-sm">
+        <div class="field"><label class="label" for="i1">한 문장으로</label><input id="i1" class="input" placeholder="예) 매일 아침 지점별 실적을 엑셀로 합치는 일을 자동으로"></div>
+        <div class="field"><label class="label" for="i2">에러 상태</label><input id="i2" class="input" aria-invalid="true" value="비어 있어요"><span class="error-text">한 글자 이상 적어주세요</span></div>
+        <div class="field"><label class="label" for="t1">지금은 어떻게</label><textarea id="t1" class="textarea" rows="3" placeholder="쓰는 시스템, 엑셀, 수작업 순서…"></textarea></div>
+      </div>
+      <div class="stack-sm">
+        <button class="choice" role="radio" aria-checked="true"><span class="choice-mark"></span><span class="grow"><span class="choice-label">데이터의 모양만 같으면 돼요</span><span class="choice-hint">모델하우스처럼 — 가구 배치는 진짜, 안의 물건은 가짜여도 됨</span></span></button>
+        <button class="choice" role="radio" aria-checked="false"><span class="choice-mark"></span><span class="grow"><span class="choice-label">실제 값의 분포가 있어야 해요</span><span class="choice-hint">얼굴을 가린 실제 사진 — 반출 심사(+3~5주)</span></span></button>
+        <button class="choice choice-unknown" role="radio" aria-checked="false"><span class="choice-mark"></span><span class="grow"><span class="choice-label">잘 모르겠어요</span><span class="choice-hint">AX-BRM이 검토할 때 함께 확인해 드려요</span></span></button>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>카드 · 완료 행 · 알림</h2>
+    <div class="grid-3">
+      <div class="card"><div class="card-title">기본 카드</div><p class="text-sm text-sub">헤어라인 1px, 그림자 없음</p></div>
+      <div class="card card-mint"><div class="card-title">👕 도움 방식</div><p class="fw-700">기성복 — 사내 챗봇형 AI</p></div>
+      <div class="card card-blush"><div class="card-title">🏢 어디서 돌아가나</div><p class="fw-700">사내 AI 공용 건물 입주</p></div>
+    </div>
+    <div class="qrow mt-md"><span class="qrow-ask">02 이 아이디어는 어떻게 시작됐나요?</span><span class="qrow-answer">우리 부서에서 늘 겪는 불편이에요</span><button class="btn btn-icon btn-sm" aria-label="수정">✎</button><p class="qrow-tip"><span>💬</span><span>"지금 하는 방식"이 자세할수록 어디를 바꾸면 되는지 빨리 찾아요.</span></p></div>
+    <div class="stack-sm mt-md">
+      <p class="notice" data-level="info"><span class="notice-emoji">💡</span>실시간 조회는 마트에 필요한 항목이 있는지 먼저 확인해요.</p>
+      <p class="notice" data-level="warn"><span class="notice-emoji">⚠️</span>실제 값이 필요하면 반출 심사(+3~5주)가 추가되고 승인 여부가 불확실해요.</p>
+      <p class="notice" data-level="check"><span class="notice-emoji">🔍</span>개인정보 포함 여부는 검토 때 함께 확인해요.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>스테퍼 · 진행 · 타임라인 · 로딩 · 빈 상태</h2>
+    <ol class="steps"><li class="step" data-state="done"><span class="step-dot"></span>어떤 일인가요</li><span class="step-bar" data-state="done"></span><li class="step" data-state="active"><span class="step-dot"></span>어떤 도움이 맞을까요</li><span class="step-bar"></span><li class="step"><span class="step-dot"></span>데이터</li><span class="step-bar"></span><li class="step"><span class="step-dot"></span>환경</li><span class="step-bar"></span><li class="step"><span class="step-dot"></span>마무리</li></ol>
+    <div class="progress mt-md"><span style="transform:scaleX(.45)"></span></div>
+    <div class="grid-3 mt-md">
+      <div class="timeline"><div class="tl-item"><div class="tl-rail"><span class="tl-dot"></span><span class="tl-line"></span></div><div class="tl-body"><div class="fw-600">신청 완료</div><div class="tl-meta">2026.09.01 14:07</div></div></div><div class="tl-item"><div class="tl-rail"><span class="tl-dot"></span></div><div class="tl-body"><div class="fw-600">검토 중</div><div class="tl-meta">2026.09.02 · 1차 검토 시작</div></div></div></div>
+      <div class="row"><span class="spinner"></span><span class="text-sub">불러오고 있어요…</span></div>
+      <div class="empty card" style="padding:24px"><div class="empty-emoji">🌱</div><div class="empty-title">아직 신청한 상담이 없어요</div><p class="text-sm">고민만 있어도 충분해요.</p><button class="btn btn-primary btn-sm mt-md">5분 상담 시작하기</button></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>테이블 · 토스트</h2>
+    <div class="table-wrap"><table class="table"><thead><tr><th>접수번호</th><th>제목</th><th class="num">예상(주)</th><th>상태</th></tr></thead><tbody><tr><td class="identifier text-xs">BRM-2026-0001</td><td class="fw-600">지점별 실적 엑셀 취합 자동화</td><td class="num">10~16</td><td><span class="badge" data-tone="brand">🛠️ 컨셉 목업</span></td></tr><tr><td class="identifier text-xs">BRM-2026-0002</td><td class="fw-600">규정 질의응답</td><td class="num">1~2</td><td><span class="badge" data-tone="success">✅ 사내 도구 안내로 종결</span></td></tr></tbody></table></div>
+    <div class="mt-md" style="position:relative;height:60px"><div class="toast-stack" style="position:absolute;bottom:0"><div class="toast" data-tone="success"><span>✨</span><span class="grow">목업을 올렸어요. 요청자도 바로 볼 수 있어요.</span></div></div></div>
+  </section>
+</div>
+</body>
+</html>

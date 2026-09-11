@@ -1,0 +1,12 @@
+# AX-BRM base 이미지 — nginx + Node.js (폐쇄망 반입용 공통 베이스)
+# 가이드의 "nginx + java" 를 우리 스택에 맞게 "nginx + node" 로 적용했다.
+#   빌드:  docker build -f docker/Dockerfile.base -t ai-brm-base:1.0 .
+#   저장:  docker save ai-brm-base:1.0 -o ai-brm-dist/ai-brm-base.tar
+# node:sqlite(개발 기본 DB)가 Node >= 22.13 을 요구하므로 node:22 이상 고정.
+FROM node:22-alpine
+
+RUN apk add --no-cache nginx tzdata \
+  && cp /usr/share/zoneinfo/Asia/Seoul /etc/localtime \
+  && echo "Asia/Seoul" > /etc/timezone
+
+ENV TZ=Asia/Seoul

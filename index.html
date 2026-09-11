@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light" />
+  <meta name="description" content="AX-BRM 포탈 — AI, 잘 몰라도 괜찮아요. 하고 싶은 일만 말해주세요." />
+  <title>AX-BRM 포탈</title>
+  <link rel="icon" type="image/png" sizes="64x64" href="/favicon.png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <script>
+    /* ─────────────────────────────────────────────────────────────
+       SSO 부트스트랩 IIFE (SSO연동가이드 §4) — Vue 마운트 **전에** 실행.
+       토큰 수신 우선순위: URL ?token=  →  sessionStorage  →  (없으면) 포탈로 이동
+       ───────────────────────────────────────────────────────────── */
+    (function () {
+      var KEY = 'aiBrmSsoToken';
+      var GUARD_KEY = 'aiBrmSsoRedirectAt';
+      // 포탈 팝업 경로 — 개발계 devaiportal / 운영계 aiportal (2026-09-07 포탈 운영팀 확정). 빌드 시 .env 값으로 치환되고,
+      // 치환이 안 됐거나(자리표시자 그대로) 비어 있으면 아래 기본값을 쓴다
+      var PORTAL_PROD = '%VITE_SSO_PORTAL_PROD%';
+      var PORTAL_DEV = '%VITE_SSO_PORTAL_DEV%';
+      if (!/^https?:/.test(PORTAL_PROD)) PORTAL_PROD = 'http://aiportal.ibk.co.kr/portal/link/aibrm/popup';
+      if (!/^https?:/.test(PORTAL_DEV)) PORTAL_DEV = 'http://devaiportal.ibk.co.kr/portal/link/aibrm/popup';
+      try {
+        var url = new URL(window.location.href);
+        var t = url.searchParams.get('token');
+        if (t) {
+          // 1) URL 에서 토큰 즉시 제거 — 주소창·히스토리·북마크에 남으면 그 URL 하나로 그 직원이 된다
+          sessionStorage.setItem(KEY, t);
+          url.searchParams.delete('token');
+          history.replaceState(null, '', url.pathname + url.search + url.hash);
+          sessionStorage.removeItem(GUARD_KEY);
+          return;
+        }
+        if (sessionStorage.getItem(KEY)) return;
+
+        // 2) 무한루프 가드 — 15초 안에 토큰 없이 되돌아오면 다시 보내지 않는다
+        var last = Number(sessionStorage.getItem(GUARD_KEY) || 0);
+        if (last && Date.now() - last < 15000) {
+          window.__ssoLoopDetected = true;
+          return;
+        }
+        // 3) 호스트 분기 — localhost → 로컬 목업, devai → 개발 포탈, 그 외 → 운영 포탈
+        var host = window.location.hostname;
+        var target = /^(localhost|127\.0\.0\.1)$/.test(host) ? '/popup.html'
+          : host.indexOf('devai') >= 0 ? PORTAL_DEV : PORTAL_PROD;
+        sessionStorage.setItem(GUARD_KEY, String(Date.now()));
+        window.location.replace(target);
+      } catch (e) {
+        window.__ssoBootError = String(e);
+      }
+    })();
+  </script>
+</head>
+<body>
+  <div id="app"></div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

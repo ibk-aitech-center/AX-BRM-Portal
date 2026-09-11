@@ -1,0 +1,17 @@
+node_modules/
+dist/
+data/
+.env
+public/popup.html
+*.log
+.DS_Store
+tests/e2e-shots/
+
+# 내부망 반입 묶음 — 바이너리(base tar · dist.zip · tar.gz)와 docker/·k8s/ 복사본은 scripts/make-dist.sh 가 다시 만든다. 문서·SQL 만 추적
+ai-brm-dist/*
+!ai-brm-dist/반입목록.md
+!ai-brm-dist/배포지시서.md
+!ai-brm-dist/create-db.sql
+!ai-brm-dist/init-db.sql
+# 랜딩 작업용 원본 이미지(힉스필드 마스터·키프레임, 40MB+) — 실제 사용 자산은 src/assets/hero 에 있다
+landing_image/

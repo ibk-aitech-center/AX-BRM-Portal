@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-brm
+  labels: { app.kubernetes.io/name: ai-brm, app.kubernetes.io/part-of: ai-brm }
+spec:
+  selector: { app.kubernetes.io/name: ai-brm }
+  ports:
+    - { name: http, port: 80, targetPort: http }
