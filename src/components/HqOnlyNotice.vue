@@ -45,7 +45,6 @@ onBeforeUnmount(() => { if (props.mode === 'dialog') { document.removeEventListe
       <div class="hq-banner-title">{{ HQ_ONLY_NOTICE.title }}</div>
       <p class="hq-text hq-text-sm">{{ HQ_ONLY_NOTICE.action }}</p>
     </div>
-    <span class="hq-chip" aria-hidden="true"><Icon3d name="suggestion-box" :size="18" /> 지식제안</span>
   </div>
 </template>
 
@@ -70,6 +69,4 @@ onBeforeUnmount(() => { if (props.mode === 'dialog') { document.removeEventListe
 /* ── banner ── */
 .hq-banner { display: flex; align-items: center; gap: 16px; padding: 18px 22px; }
 .hq-banner-title { font-weight: 700; font-size: 16px; color: var(--text); }
-.hq-chip { display: inline-flex; align-items: center; gap: 6px; flex: none; padding: 6px 12px; border-radius: 999px; background: var(--surface); border: 1px solid var(--brand-100); font-size: 13px; font-weight: 600; color: var(--accent); }
-@media (max-width: 640px) { .hq-banner { flex-wrap: wrap; } .hq-chip { display: none; } }
 </style>
