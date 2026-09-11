@@ -82,7 +82,8 @@ const topCell = computed<{ d: number; f: number; n: number } | null>(() => {
 </template>
 
 <style scoped>
-.cb { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 14px; align-items: start; }
+/* 두 열을 같은 높이로 — 오른쪽 매트릭스 카드가 왼쪽 세 카드 합만큼 늘어나고, 남는 높이는 표의 행들이 나눠 가져 아래 빈 여백이 생기지 않는다 (2026-09-11) */
+.cb { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 14px; align-items: stretch; }
 @media (max-width: 1100px) { .cb { grid-template-columns: 1fr; } }
 .cb-left { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
 .cb-block { padding: 14px 16px 12px; background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--radius-sm); min-width: 0; }
@@ -102,8 +103,9 @@ const topCell = computed<{ d: number; f: number; n: number } | null>(() => {
 
 /* 교차표 — 칸 배경 3단계, 숫자는 텍스트 토큰 */
 .cb-matrix-block { display: flex; flex-direction: column; }
-.cb-matrix-wrap { overflow-x: auto; }
-.cb-matrix { width: 100%; border-collapse: separate; border-spacing: 3px; font-size: 13.5px; }
+.cb-matrix-wrap { overflow-x: auto; flex: 1 1 auto; display: flex; flex-direction: column; }
+.cb-matrix { width: 100%; flex: 1 1 auto; border-collapse: separate; border-spacing: 3px; font-size: 13.5px; }
+.cb-matrix tbody td, .cb-matrix tbody th { vertical-align: middle; }
 .cb-matrix th { font-weight: 600; color: var(--text-sub); font-size: 12.5px; text-align: left; padding: 6px 8px; white-space: nowrap; }
 .cb-matrix thead th { text-align: center; }
 .cb-matrix thead th.cb-corner { text-align: left; font-size: 11px; font-weight: 500; }
@@ -115,7 +117,7 @@ const topCell = computed<{ d: number; f: number; n: number } | null>(() => {
 .cb-matrix td[data-level="3"] { background: var(--brand-300); font-weight: 700; }
 .cb-matrix .cb-total { background: transparent; color: var(--text-sub); font-weight: 600; font-size: 12.5px; }
 .cb-matrix tfoot th { border-top: 1px solid var(--line); }
-.cb-note { margin-top: 10px; line-height: 1.5; }
+.cb-note { margin-top: auto; padding-top: 10px; line-height: 1.5; }
 .cb-note b { color: var(--text); }
 @keyframes cb-in { from { opacity: 0; } to { opacity: 1; } }
 </style>
