@@ -22,7 +22,10 @@ const count = (arr, keyFn) => {
   for (const x of arr) { const k = keyFn(x) ?? '(미정)'; m.set(k, (m.get(k) || 0) + 1); }
   return [...m.entries()].map(([key, n]) => ({ key, n })).sort((a, b) => b.n - a.n);
 };
-const days = (a, b) => (new Date(b).getTime() - new Date(a).getTime()) / 86400000;
+// 걸린 일수는 **달력(KST) 기준 + 1** — 당일 처리 = 1일, 다음 날 = 2일. 시각 차이는 세지 않는다 (2026-09-11 결정: "오늘 신청·오늘 의견이면 1일")
+const KST_OFFSET_MS = 9 * 3600 * 1000;
+const kstDayIndex = (iso) => Math.floor((new Date(iso).getTime() + KST_OFFSET_MS) / 86400000);
+const days = (a, b) => kstDayIndex(b) - kstDayIndex(a) + 1;
 const avg = (xs) => (xs.length ? Math.round((xs.reduce((s, x) => s + x, 0) / xs.length) * 10) / 10 : null);
 
 async function loadRows(q) {
