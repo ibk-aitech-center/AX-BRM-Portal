@@ -119,12 +119,13 @@ const topCell = computed<{ d: number; f: number; n: number } | null>(() => {
 .cb-matrix-wrap { overflow-x: auto; flex: 1 1 auto; display: flex; flex-direction: column; margin-top: 2px; }
 .cb-matrix { width: 100%; flex: 1 1 auto; border-collapse: collapse; font-size: 13.5px; table-layout: fixed; }
 .cb-matrix th, .cb-matrix td { border: 1px solid var(--line); vertical-align: middle; }
-.cb-matrix thead th { padding: 8px 10px 10px; font-size: 12.5px; font-weight: 600; color: var(--text-sub); text-align: center; white-space: nowrap; border-top: 0; background: transparent; }
+/* 색 역할 — 라벨(머리행·행머리)은 흰 바탕, 데이터 칸은 카드 바탕(옅은 회녹) + 브랜드 진하기, 합계 행·열은 따뜻한 샌드. 세 영역이 한눈에 갈린다 (2026-09-11) */
+.cb-matrix thead th { padding: 8px 10px 10px; font-size: 12.5px; font-weight: 600; color: var(--text-sub); text-align: center; white-space: nowrap; border-top: 0; background: var(--surface); }
 .cb-matrix thead th.cb-corner { text-align: left; font-family: var(--font-mono); font-size: 10.5px; font-weight: 500; color: var(--text-muted); letter-spacing: .02em; line-height: 1.5; padding-bottom: 6px; }
 .cb-matrix thead th.cb-corner span { display: block; }
 .cb-matrix thead th:first-child, .cb-matrix tbody th, .cb-matrix tfoot th { border-left: 0; }
 .cb-matrix thead th:last-child, .cb-matrix td:last-child { border-right: 0; }
-.cb-matrix tbody th { width: 30%; padding: 8px 10px; text-align: left; font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cb-matrix tbody th { width: 30%; padding: 8px 10px; text-align: left; font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: var(--surface); }
 .cb-matrix tbody tr { transition: background var(--transition); }
 .cb-matrix tbody tr:hover { background: rgba(23,84,90,.035); }
 
@@ -140,14 +141,14 @@ const topCell = computed<{ d: number; f: number; n: number } | null>(() => {
 .cb-cell.cb-top { box-shadow: inset 0 0 0 2px var(--brand-500); }
 
 /* 합계 — 숫자(굵게) + 전체 대비 비율(작게)만. 막대는 두지 않는다 (2026-09-11: 수치만 표기) */
-.cb-total-h { color: var(--text-muted) !important; }
-.cb-sum { padding: 8px 10px; text-align: center; color: var(--text-sub); background: var(--surface-2); }
+.cb-total-h { background: var(--sand) !important; color: var(--text-sub) !important; }
+.cb-sum { padding: 8px 10px; text-align: center; color: var(--text-sub); background: var(--sand); }
 .cb-sum b { display: block; font-size: 15px; font-weight: 700; line-height: 1.15; color: var(--text); }
 .cb-sum small { display: block; margin-top: 2px; font-size: 11px; color: var(--text-muted); }
-.cb-matrix tfoot th { padding: 8px 10px; text-align: left; font-size: 12.5px; font-weight: 600; color: var(--text-muted); border-bottom: 0; }
+.cb-matrix tfoot th { padding: 8px 10px; text-align: left; font-size: 12.5px; font-weight: 600; color: var(--text-sub); border-bottom: 0; background: var(--sand); }
 .cb-matrix tfoot .cb-sum { border-bottom: 0; }
-.cb-grand { background: var(--brand-50); }
-.cb-grand b { font-size: 16px; }
+.cb-matrix tbody tr:hover .cb-sum { background: var(--sand); }
+.cb-grand b { font-size: 16px; color: var(--accent); }
 .cb-note { margin-top: auto; padding-top: 10px; line-height: 1.5; }
 .cb-note b { color: var(--text); }
 @keyframes cb-in { from { opacity: 0; } to { opacity: 1; } }

@@ -23,8 +23,10 @@ void props;
 
 <template>
   <span class="tip" :class="{ open }" :data-tip="id">
+    <!-- 트리거: 물음표 + 라벨 알약. 아이콘만 있을 때보다 "무엇이 나오는지" 읽혀 눌러 볼 이유가 생긴다 (2026-09-11) -->
     <button type="button" class="tip-btn" :aria-label="`${title} ${label}`" :aria-expanded="open" :aria-describedby="id" @click.stop="toggle">
-      <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><circle cx="10" cy="10" r="8.25" fill="none" stroke="currentColor" stroke-width="1.5" /><circle cx="10" cy="6.6" r="1.1" fill="currentColor" /><path d="M8.6 9h1.9v5h1.1" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+      <svg viewBox="0 0 20 20" width="14" height="14" aria-hidden="true"><circle cx="10" cy="10" r="8.5" fill="currentColor" opacity=".18" /><path d="M7.4 7.9a2.6 2.6 0 1 1 3.7 2.35c-.7.35-1.1.8-1.1 1.55v.2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" /><circle cx="10" cy="14.6" r="1.05" fill="currentColor" /></svg>
+      <span class="tip-btn-label">{{ label }}</span>
     </button>
     <span :id="id" role="tooltip" class="tip-pop">
       <span class="tip-head">
@@ -46,8 +48,9 @@ void props;
 
 <style scoped>
 .tip { position: relative; display: inline-flex; }
-.tip-btn { width: 26px; height: 26px; border-radius: 50%; border: 0; background: transparent; color: var(--text-muted); cursor: help; display: grid; place-items: center; transition: color var(--transition), background var(--transition); }
-.tip-btn:hover, .tip-btn:focus-visible, .tip.open .tip-btn { color: var(--accent); background: var(--accent-soft); outline: none; }
+.tip-btn { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 8px 0 6px; border-radius: 999px; border: 1px solid var(--brand-100); background: var(--surface); color: var(--accent); font-size: 11px; font-weight: 600; letter-spacing: .01em; cursor: help; transition: color var(--transition), background var(--transition), border-color var(--transition); }
+.tip-btn:hover, .tip-btn:focus-visible, .tip.open .tip-btn { background: var(--accent-soft); border-color: var(--brand-300); outline: none; }
+.tip-btn-label { line-height: 1; }
 
 /* 팝오버 — 버튼 아래로 펼치고 오른쪽 끝을 맞춘다(카드 폭이 좁아 화면 밖 넘침 방지). 카드 위에 확실히 떠 보이도록 모달급 그림자 */
 .tip-pop { position: absolute; top: calc(100% + 10px); right: -4px; z-index: var(--z-panel); width: min(380px, 86vw); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); box-shadow: 0 16px 40px rgba(27,43,44,.18), 0 2px 6px rgba(27,43,44,.08); text-align: left; font-weight: 400; overflow: hidden; opacity: 0; visibility: hidden; transform: translateY(-4px); transition: opacity .16s var(--ease-out), transform .16s var(--ease-out), visibility 0s .16s; }

@@ -137,7 +137,7 @@ const kpis = computed(() => {
     // 반려를 타일로 — 접수 = 진행 중 + 완료·종결 + 반려 가 타일 넷으로 바로 맞아떨어진다 (2026-09-08, 5장 구성 · 2026-09-11 보완 요청은 진행 중으로)
     { l: '반려', v: s.totals.stalled, u: '건', sub: s.totals.submitted ? `접수의 ${pct(s.totals.stalled, s.totals.submitted)}%` : '반려 없음', delta: delta(s.totals.stalled, p?.stalled), lowerBetter: true },
     // 보조 문구는 이 지표의 모수만 — "완료까지 평균"은 담당자별 처리 현황의 지표라 여기 섞지 않는다 (2026-09-11)
-    { l: '첫 의견까지', v: s.totals.avgFirstReviewDays, u: '일', sub: s.totals.submitted ? `접수 ${s.totals.submitted}건 전체 기준 · 산출 기준은 ⓘ` : '접수된 요청 없음', delta: delta(s.totals.avgFirstReviewDays, p?.avgFirstReviewDays, '일'), lowerBetter: true, info: FIRST_REVIEW_RULES },
+    { l: '첫 의견까지', v: s.totals.avgFirstReviewDays, u: '일', sub: s.totals.submitted ? `접수 ${s.totals.submitted}건 전체 기준` : '접수된 요청 없음', delta: delta(s.totals.avgFirstReviewDays, p?.avgFirstReviewDays, '일'), lowerBetter: true, info: FIRST_REVIEW_RULES },
   ];
 });
 
