@@ -38,7 +38,6 @@ const FIRST_REVIEW_RULES: readonly TipSection[] = [
     { k: '의견 없이 진행 중이면', v: '오늘까지. 의견이 달릴 때까지 매일 하루씩 늘어요.' },
   ] },
   { label: '일수 계산', text: '달력 기준이에요. 당일 처리 1일, 다음 날 2일. 시각 차이는 세지 않아요.' },
-  { label: '완료까지 평균', text: '완료된 건만, 신청일부터 완료로 바뀐 날까지예요.', note: true },
 ];
 
 
