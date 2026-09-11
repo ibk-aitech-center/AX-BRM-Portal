@@ -93,6 +93,6 @@ export function requireAdmin(req, res, next) {
  * @type {import('express').RequestHandler}
  */
 export function requireRequester(req, res, next) {
-  if (!req.user?.canRequest) return next(new HttpError(403, 'AX-BRM 포탈은 본부부서를 대상으로 운영되는 시스템이에요. 영업점 업무 개선 아이디어는 지식제안을 통해 진행해 주세요.', 'HQ_ONLY'));
+  if (!req.user?.canRequest) return next(new HttpError(403, 'AX-BRM 포탈은 본부부서 업무 개선 상담을 위한 곳이라 영업점은 신청할 수 없어요. 영업점 업무 개선 아이디어는 지식제안을 통해 진행해 주세요.', 'HQ_ONLY'));
   next();
 }
