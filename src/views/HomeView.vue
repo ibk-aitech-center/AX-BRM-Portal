@@ -83,6 +83,17 @@ const flow = [
   { e: 'coding-laptop', who: '현업', t: '업무 순서 정리 · 초안 만들기', d: 'AI와 대화하며 업무 순서를 정리하고\n초안을 만들어요. AX-BRM이 도와드려요.', cls: 'flow-me', me: true },
   { e: 'package-conveyor', who: 'AX-BRM', t: '데이터·AI 연결 · 서비스 완성', d: '데이터와 AI 기능을 연결해\n서비스를 완성해요.', cls: 'card-blush' },
 ];
+
+/** 바이브 코딩 시작 가이드 — public/guides 의 정적 슬라이드 덱을 별도 팝업 창으로. 팝업이 막히면 새 탭으로 */
+function openVibeGuide() {
+  const w = Math.min(1600, Math.round(screen.availWidth * 0.92));
+  const h = Math.min(980, Math.round(screen.availHeight * 0.92));
+  const left = Math.max(0, Math.round((screen.availWidth - w) / 2));
+  const top = Math.max(0, Math.round((screen.availHeight - h) / 2));
+  const url = `${import.meta.env.BASE_URL}guides/vibe-coding-start.html`;
+  const win = window.open(url, 'aibrm-vibe-guide', `popup=yes,width=${w},height=${h},left=${left},top=${top},resizable=yes,scrollbars=yes`);
+  if (!win) window.open(url, '_blank');
+}
 </script>
 
 <template>
@@ -101,6 +112,8 @@ const flow = [
             <!-- 종 흔들듯 살랑살랑 계속 흔들려 클릭을 유도. 흔들림은 래퍼에 두어 버튼 자체의 hover 스프링과 부딪히지 않게 -->
             <span class="jingle"><button class="btn btn-primary btn-lg" @click="start()">상담 시작하기</button></span>
             <a href="#how" class="btn btn-secondary btn-lg">어떻게 진행되나요?</a>
+            <!-- 바이브 코딩 시작 가이드(사전 설치 슬라이드 덱, public/guides). 1840×920 고정 캔버스를 뷰포트에 맞춰 축소하는 덱이라 넓은 별도 창으로 연다 -->
+            <button type="button" class="btn btn-secondary btn-lg" @click="openVibeGuide()">바이브 코딩 시작 가이드</button>
           </div>
           <div v-if="drafts.length" class="resume rise rise-4">
             <span aria-hidden="true">✏️</span>
