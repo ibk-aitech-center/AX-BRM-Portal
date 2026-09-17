@@ -111,11 +111,8 @@ const grouped = computed(() => {
   const vis = visibleQuestions(d.value.request.answers);
   return SECTIONS.map((s) => ({ s, qs: vis.map((q, i) => ({ q, n: i + 1 })).filter((x) => x.q.section === s.key) })).filter((g) => g.qs.length);
 });
-const judgement = computed<Judgement | null>(() => {
-  if (!d.value?.request.judgement) return null;
-  const o = d.value.reviews.find((r) => r.judgementOverride)?.judgementOverride;
-  return o ? { ...d.value.request.judgement, ...o } : d.value.request.judgement;
-});
+/** 유효 판정 — 서버가 최근 조정을 이미 덮어서 준다 (server/judgement.js). 화면에서 다시 합치지 않는다 */
+const judgement = computed<Judgement | null>(() => d.value?.request.judgement ?? null);
 const unknownQs = computed(() => (judgement.value?.unknowns || []).map((qid) => getQuestion(qid)).filter(Boolean));
 const mockups = computed(() => (d.value?.attachments || []).filter((a) => a.kind === 'mockup'));
 

@@ -6,6 +6,7 @@ import { env } from './env.js';
 import { db } from './db/index.js';
 import { verifySsoToken, bearerFrom, SsoError } from './ssoAuth.js';
 import { DATA_BRM_ROLE, isDataRequestRow } from './dataBrm.js';
+import { GROUP_PLANNER_ROLE, isGroupPlanner, isGroupPlannerReadable } from './groupPlanner.js';
 import { MIRROR_TABLE, isHqOrg } from './hrSync.js';
 
 export class HttpError extends Error {
@@ -54,16 +55,18 @@ export async function requireAuth(req, res, next) {
   }
 }
 
-/** 역할 목록 — users.role. requester(일반) · brm(AX-BRM, HR 동기화가 재계산) · data_brm(DATA-BRM 조회 전용, 수기) · admin(시스템 담당자, 수기) */
-export const ROLES = ['requester', 'brm', DATA_BRM_ROLE, 'admin'];
+/** 역할 목록 — users.role. requester(일반) · brm(AX-BRM, HR 동기화가 재계산) · data_brm(DATA-BRM 조회 전용, 수기) · group_planner(그룹기획 접수현황 조회 전용, 수기) · admin(시스템 담당자, 수기) */
+export const ROLES = ['requester', 'brm', DATA_BRM_ROLE, GROUP_PLANNER_ROLE, 'admin'];
 
 export const isBrm = (u) => u && (u.role === 'brm' || u.role === 'admin');
 /** DATA-BRM — 데이터가 필요한(또는 모르겠다고 답한) 요청만 조회. AX-BRM 권한과 겹치지 않는다 */
 export const isDataBrm = (u) => u && u.role === DATA_BRM_ROLE;
+/** 그룹기획 — 신청된 모든 건을 조회만 한다 (server/groupPlanner.js). AX-BRM 권한과 겹치지 않는다 */
+export { isGroupPlanner };
 
 /**
- * 요청 하나를 읽을 수 있는지 — 요청자 본인 · AX-BRM/관리자 전부 · DATA-BRM 은 데이터 관련 건만.
- * 쓰기(의견·상태·담당자·첨부·대화)는 각 라우트가 own/isBrm 으로 따로 막는다 — DATA-BRM 은 어디서도 쓰지 못한다.
+ * 요청 하나를 읽을 수 있는지 — 요청자 본인 · AX-BRM/관리자 전부 · DATA-BRM 은 데이터 관련 건만 · 그룹기획은 신청된 건 전부.
+ * 쓰기(의견·상태·담당자·첨부·대화)는 각 라우트가 own/isBrm 으로 따로 막는다 — DATA-BRM·그룹기획은 어디서도 쓰지 못한다.
  * @param {{ employeeNo: string, role: string } | null | undefined} user
  * @param {{ requester_employee_no?: string, status?: string, answers?: string | Record<string, unknown> | null } | null | undefined} row
  */
@@ -72,6 +75,7 @@ export function canReadRequest(user, row) {
   if (row.requester_employee_no === user.employeeNo) return true;
   if (isBrm(user)) return true;
   if (isDataBrm(user)) return isDataRequestRow(row);
+  if (isGroupPlanner(user)) return isGroupPlannerReadable(row);
   return false;
 }
 

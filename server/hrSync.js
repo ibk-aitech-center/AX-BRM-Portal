@@ -242,7 +242,7 @@ export async function findAssigneeCandidate(conn, employeeNo) {
  * 관리자(admin)·AX-BRM(brm) 권한은 HR 파생이다 — 미러 동기화 때마다 아래 **규칙 상수**로 재계산한다 (2026-09-08 확정).
  *   admin ← 팀코드 8476 전원 (부서 무관) + 부서코드 1094 의 부장(DU22)
  *   brm   ← 부서코드 1094 소속 중 admin 규칙에 안 걸리는 나머지 전원
- * 우선순위는 admin > brm. data_brm(DATA-BRM 조회 전용, 수기 부여)은 건드리지 않는다.
+ * 우선순위는 admin > brm. data_brm(DATA-BRM 조회 전용)·group_planner(그룹기획 접수현황 조회 전용) 은 수기 부여라 건드리지 않는다.
  * 회수: 규칙에서 벗어난 brm → requester. **admin 은 자동 회수하지 않는다** — 최초 시드 관리자(024498·044692 등)처럼
  *   규칙 밖 관리자가 있어서, 관리자 해제는 관리 화면에서 수기로만 한다.
  * 관리 화면에서 수기로 brm 을 부여하거나 1094 직원을 requester 로 내려도 다음 동기화 때 이 규칙으로 되돌아간다.
@@ -286,9 +286,9 @@ export async function listAdminRecipients(conn = db) {
 
 /**
  * 역할 재계산 — 네 단계 (admin 규칙 > brm 규칙):
- *   ① admin 규칙에 맞는 requester·brm → admin (adminGranted). data_brm·이미 admin 은 그대로
+ *   ① admin 규칙에 맞는 requester·brm → admin (adminGranted). data_brm·group_planner·이미 admin 은 그대로
  *   ② brm 규칙에 맞는 requester → brm (granted)
- *   ③ 어느 규칙에도 안 맞는 brm → requester (revoked). admin·data_brm 은 회수하지 않는다
+ *   ③ 어느 규칙에도 안 맞는 brm → requester (revoked). admin·data_brm·group_planner 는 회수하지 않는다
  *   ④ **미러에 있는데 아직 users 에 없는 직원 전원**의 행을 미러 정보(이름·부서·직위)로 미리 만든다 (provisioned).
  *      역할은 규칙대로(admin/brm/requester). → 담당자 관리 화면에 전 직원이 로그인 전부터 나타나 어떤 역할이든 바로 줄 수 있고,
  *      규칙에 맞는 직원은 첫 로그인부터 그 역할이다. 로그인 경로는 기존 행의 역할을 그대로 쓴다. (2026-09-07: 1094 만 → 전원으로 확대)

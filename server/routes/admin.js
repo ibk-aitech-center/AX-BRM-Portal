@@ -15,7 +15,7 @@ adminRouter.use(requireAuth);
 const USERS_SELECT = `
   SELECT u.*, h.ogzn_attcd, h.ducd AS hr_ducd, h.blng_brcd AS hr_dept_cd, h.blng_nm AS hr_dept_nm, h.beteam_cd AS hr_team_cd, h.beteam_nm AS hr_team_nm
     FROM users u LEFT JOIN ${MIRROR_TABLE} h ON h.emp_no = u.employee_no`;
-const USERS_ORDER = `ORDER BY CASE u.role WHEN 'admin' THEN 0 WHEN 'brm' THEN 1 WHEN 'data_brm' THEN 2 ELSE 3 END, u.name LIMIT 200`;
+const USERS_ORDER = `ORDER BY CASE u.role WHEN 'admin' THEN 0 WHEN 'brm' THEN 1 WHEN 'data_brm' THEN 2 WHEN 'group_planner' THEN 3 ELSE 4 END, u.name LIMIT 200`;
 
 /**
  * 목록: users 전체(로그인했거나 사전 생성된 직원). 검색어가 있으면 **아직 users 에 없는 HR 미러 직원**도 같이 돌려준다
@@ -118,6 +118,8 @@ adminRouter.get('/role-rules', requireAdmin, async (_req, res) => {
     brm: { deptCodes: BRM_DEPT_CODES },
     // DATA-BRM 은 규칙 없음 — 시스템 담당자가 수기로 부여하고, HR 동기화가 건드리지 않는다
     dataBrm: { manual: true },
+    // 그룹기획도 규칙 없음 — 수기 부여, 신청된 모든 건을 조회만 한다 (server/groupPlanner.js)
+    groupPlanner: { manual: true },
     // 상담 요청 자격 — 역할이 아니라 미러의 조직속성코드로 판정 (2026-09-11)
     hq: { ogznAttcds: HQ_OGZN_ATTCDS },
   });

@@ -13,7 +13,7 @@
 | name | TEXT NOT NULL | 이름 (토큰 기준, 로그인마다 갱신) |
 | org_cd / org_nm | TEXT | 부서 코드/명 (토큰 기준) |
 | position | TEXT | 직책 — HR 미러(`tbl_employee_adv.abnm_jtm`)에서 채움 |
-| role | TEXT NOT NULL | `requester` \| `brm` \| `data_brm` \| `admin` — brm 은 HR 동기화가 재계산, data_brm(DATA-BRM 조회 전용)·admin 은 수기 |
+| role | TEXT NOT NULL | `requester` \| `brm` \| `data_brm` \| `group_planner` \| `admin` — brm 은 HR 동기화가 재계산, data_brm(DATA-BRM 조회 전용)·group_planner(그룹기획 접수현황 조회 전용)·admin 은 수기 |
 | created_at / last_login_at | TEXT | ISO-8601 |
 
 ## tbl_employee_adv — HR 인사 미러 (매일 07:00 full-replace)

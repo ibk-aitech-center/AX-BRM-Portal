@@ -81,7 +81,7 @@ npm run typecheck             # vue-tsc
   중단(`HR_SYNC_ALLOW_SHRINK=1` 로 강행), 조회 타임아웃 120초
 - **역할 자동 갱신** (2026-09-08 규칙): 동기화 때마다 ① 팀코드 `8476`(AX-BRM팀) 전원 + 부서코드 `1094` 의 부장(DU22) → **admin**,
   ② 나머지 `1094` 소속 전원 → **brm**, ③ 어느 규칙에도 안 맞는 brm → requester 로 회수. **admin 은 자동 회수하지 않는다**
-  (시드 관리자 보호 — 해제는 관리 화면에서 수기). data_brm 은 건드리지 않는다. **수기 역할 변경은 다음 동기화 때 규칙대로 되돌아간다**.
+  (시드 관리자 보호 — 해제는 관리 화면에서 수기). data_brm·group_planner 는 건드리지 않는다. **수기 역할 변경은 다음 동기화 때 규칙대로 되돌아간다**.
   규칙 상수는 `ADMIN_TEAM_CODES` · `ADMIN_DEPT_HEAD_RULES` · `BRM_DEPT_CODES` (server/hrSync.js)
 - **시스템 관리자**: 024498·044692 는 최초 기동 시 **1회만** admin 으로 시드(`app_meta` 플래그).
   이후 변경은 관리 화면에서 수기로만 한다
@@ -109,7 +109,7 @@ NODE_ENV=production node server/index.js    # dist 정적 서빙 + SPA 폴백 + 
 - 배포 번들은 `scripts/make-dist.sh` 가 `NODE_ENV=production` 을 셸에서 못박고 빌드한다 — `.env` 의 `NODE_ENV=development` 는 로컬 개발 서버용인데 `vite build` 에도 적용돼 개발 런타임이 운영 번들에 들어간 적이 있다(2026-09-08). 로컬에서 `npm run build` 만 따로 돌릴 때도 같은 함정에 주의.
 - 신청된 요청의 삭제는 시스템 관리자만(`DELETE /api/requests/:id`, 접수함 상세 상단의 "접수 삭제" 버튼, 접수번호 재입력 확인). 의견·이력·첨부 파일·대화를 함께 지우고 서버 로그에 남긴다. 초안은 작성자 본인이 지운다.
 - 역할 일괄 변경: `POST /api/admin/users/bulk-role` { employeeNos, role } — 담당자 관리에서 검색 결과를 체크해 한 번에. 규칙은 단건과 같다(미접속은 미러로 등록, 자기 관리자 강등 불가).
-- 역할 4종: `requester` · `brm`(AX-BRM, HR 동기화가 재계산) · `data_brm`(**DATA-BRM 조회 전용**, 관리자가 수기 부여 — "행내 데이터가 필요한가요?"에 네/모르겠어요로 답한 요청만 `/data` 에서 조회, 접수 시 메신저 알림 1회, 쓰기 API 전부 403) · `admin`. 판정 기준은 `server/dataBrm.js` 한 곳.
+- 역할 5종: `requester` · `brm`(AX-BRM, HR 동기화가 재계산) · `data_brm`(**DATA-BRM 조회 전용**, 관리자가 수기 부여 — "행내 데이터가 필요한가요?"에 네/모르겠어요로 답한 요청만 `/data` 에서 조회, 접수 시 메신저 알림 1회, 쓰기 API 전부 403) · `group_planner`(**그룹기획 접수현황 조회 전용**, 수기 부여 — 신청된 **모든** 건을 `/status` 에서 조회, 알림 없음, 쓰기 API 전부 403) · `admin`. 판정 기준은 `server/dataBrm.js` · `server/groupPlanner.js` 한 곳씩.
 - 목업은 **`.html` 확장자만** 업로드(클라이언트·서버 양쪽 검사). 미리보기는 `/mockup/:id` 를 **별도 창(window.open)** 으로 열고,
   그 창의 부트스트랩(MockupView)이 `POST /api/attachments/:id/view-ticket`(Bearer)로 **10분짜리 열람 티켓**을 받은 뒤 그 창의 SSO 토큰을 지우고 opener 를 끊고서
   `GET /api/attachments/:id/view?t=…` 를 최상위 문서로 연다 — sandbox iframe 이 아니라 목업의 localStorage·모달·폼이 온전히 동작한다 (2026-09-09).

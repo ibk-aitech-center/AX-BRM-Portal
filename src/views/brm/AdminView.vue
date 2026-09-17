@@ -14,6 +14,7 @@ interface RoleRules {
   admin: { teamCodes: string[]; deptHeads: { deptCode: string; ducd: string; label: string }[]; initialSeed: string[]; seededAt: string | null };
   brm: { deptCodes: string[] };
   dataBrm?: { manual: boolean };
+  groupPlanner?: { manual: boolean };
   /** 상담 요청 자격 — 미러 조직속성코드(본부부서) 목록 */
   hq: { ogznAttcds: string[] };
 }
@@ -46,8 +47,8 @@ const q = ref('');
 /** 역할 필터 — '' 이면 전체. 검색어와 AND 로 서버에서 거른다. 세그먼트로 고르면 바로 다시 조회 */
 const roleFilter = ref('');
 const loading = ref(true);
-const ROLE: Record<string, string> = { requester: '일반 사용자', brm: 'AX-BRM', data_brm: 'DATA-BRM (조회 전용)', admin: '관리자' };
-const roleOpts: SegOption[] = [{ value: '', label: '전체' }, { value: 'admin', label: '관리자' }, { value: 'brm', label: 'AX-BRM' }, { value: 'data_brm', label: 'DATA-BRM' }, { value: 'requester', label: '일반 사용자' }];
+const ROLE: Record<string, string> = { requester: '일반 사용자', brm: 'AX-BRM', data_brm: 'DATA-BRM (조회 전용)', group_planner: '그룹기획 (조회 전용)', admin: '관리자' };
+const roleOpts: SegOption[] = [{ value: '', label: '전체' }, { value: 'admin', label: '관리자' }, { value: 'brm', label: 'AX-BRM' }, { value: 'data_brm', label: 'DATA-BRM' }, { value: 'group_planner', label: '그룹기획' }, { value: 'requester', label: '일반 사용자' }];
 watch(roleFilter, () => load());
 
 async function load() {
@@ -153,7 +154,7 @@ async function setRole(u: Row, role: string) {
       </button>
     </div>
     <details v-if="rules" open class="card mb-lg" style="padding:16px 20px">
-      <summary style="cursor:pointer;font-weight:600">권한이 정해지는 규칙 <span class="text-sm text-sub" style="font-weight:400">— 관리자·AX-BRM 은 HR 미러 규칙으로 자동, DATA-BRM 은 수기</span></summary>
+      <summary style="cursor:pointer;font-weight:600">권한이 정해지는 규칙 <span class="text-sm text-sub" style="font-weight:400">— 관리자·AX-BRM 은 HR 미러 규칙으로 자동, DATA-BRM·그룹기획은 수기</span></summary>
       <div class="mt-sm text-sm" style="line-height:1.7">
         <p class="fw-600 mt-sm">관리자 권한 · HR 인사 미러가 동기화될 때마다(매일 07:00 등) 자동으로 부여돼요</p>
         <ul style="margin:4px 0 0;padding-left:18px">
@@ -166,12 +167,14 @@ async function setRole(u: Row, role: string) {
           <li v-for="c in rules.brm.deptCodes" :key="c">부서코드 <code class="identifier">{{ c }}</code> 의 전 직원 — 단, 위 관리자 규칙에 해당하는 직원은 관리자</li>
         </ul>
         <p class="text-sub" style="margin-top:6px">규칙에 해당하면 AX-BRM 으로 부여되고, 벗어나면 일반 사용자로 되돌아가요. 미러링 때 <b>전 직원이 로그인 전에 미리 등록</b>되고, 규칙에 맞는 직원은 첫 로그인부터 그 역할이에요.
-          여기서 수기로 AX-BRM 을 주거나 일반 사용자로 내려도 <strong>다음 동기화 때 규칙대로 다시 계산</strong>돼요. DATA-BRM 권한은 자동으로 바뀌지 않아요.</p>
+          여기서 수기로 AX-BRM 을 주거나 일반 사용자로 내려도 <strong>다음 동기화 때 규칙대로 다시 계산</strong>돼요. DATA-BRM·그룹기획 권한은 자동으로 바뀌지 않아요.</p>
         <p class="fw-600 mt-md">상담 요청 자격 · 본부부서 직원만 (역할과 무관)</p>
         <p class="text-sub" style="margin-top:4px">HR 미러의 <b>조직속성코드</b>가 <template v-for="(c, i) in rules.hq.ogznAttcds" :key="c"><code class="identifier">{{ c }}</code><template v-if="i < rules.hq.ogznAttcds.length - 1"> · </template></template> 인 직원만 상담을 요청할 수 있어요.
           그 외(영업점 등)는 로그인은 되지만 안내만 보고 요청을 만들 수 없어요. 미러에 없는 직원도 요청 불가예요. 아래 표의 "조직속성" 열에서 확인할 수 있어요.</p>
         <p class="fw-600 mt-md">DATA-BRM 권한 · 수기로만 관리해요 (조회 전용)</p>
         <p class="text-sub" style="margin-top:4px">데이터 담당 부서 직원에게 이 화면에서 부여해요. "행내 데이터가 필요한가요?"에 <b>네</b> 또는 <b>잘 모르겠어요</b>로 답한 요청만 "데이터 요청" 메뉴에서 <b>조회</b>할 수 있고(AX-BRM 의견·목업·첨부·대화·이력 포함), 의견·상태 등록은 할 수 없어요. 그런 요청이 접수될 때 메신저 알림을 받아요. HR 동기화가 이 권한을 바꾸지 않아요.</p>
+        <p class="fw-600 mt-md">그룹기획 권한 · 수기로만 관리해요 (조회 전용)</p>
+        <p class="text-sub" style="margin-top:4px">그룹 기획 담당 직원에게 이 화면에서 부여해요. 신청된 <b>모든 요청</b>을 "접수현황 조회" 메뉴에서 <b>조회</b>할 수 있고(AX-BRM 의견·목업·첨부·대화·이력 포함), 의견·상태 등록은 할 수 없어요. DATA-BRM 과 달리 데이터 관련 여부와 무관하게 전부 보이고, 접수 알림은 받지 않아요. HR 동기화가 이 권한을 바꾸지 않아요.</p>
         <p class="mt-md" style="color:#A23425"><strong>⚠ 조직개편·담당자 변경 시:</strong> 위 소속코드·직책코드나 담당 체계가 바뀌면
           서버 설정(<code class="identifier">server/hrSync.js</code> 의 <code class="identifier">ADMIN_TEAM_CODES</code> · <code class="identifier">ADMIN_DEPT_HEAD_RULES</code> · <code class="identifier">BRM_DEPT_CODES</code>)을 함께 바꿔 주세요.
           그대로 두면 새 담당자는 권한을 받지 못하고, 이전 조직 인원이 계속 관리자·AX-BRM 권한을 유지해요.</p>

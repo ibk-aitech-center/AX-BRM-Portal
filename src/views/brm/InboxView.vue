@@ -114,7 +114,7 @@ function open(r: RequestSummary) { router.push({ name: 'review', params: { id: r
             <td class="fw-600" style="min-width:220px;max-width:360px">{{ r.title }}</td>
             <td><div>{{ r.requester.name }}</div><div class="text-xs text-muted">{{ r.requester.orgNm || '-' }}</div></td>
             <td class="text-sm nowrap">{{ CH[r.channel || ''] || '-' }}</td>
-            <td class="text-sm nowrap">{{ r.judgement?.track ? TRACK_LABEL[r.judgement.track].label : '-' }}</td>
+            <td class="text-sm nowrap">{{ r.judgement?.track ? TRACK_LABEL[r.judgement.track].label : '-' }}<span v-if="r.judgementAdjusted" class="badge adj" data-tone="brand" :title="`신청 시 자동 판정: ${r.judgementOriginal?.track ? TRACK_LABEL[r.judgementOriginal.track].label : '-'} → AX-BRM 이 조정`">조정</span></td>
             <td class="text-sm nowrap tnum">{{ leadtimeText(r.judgement?.leadtime ?? null) }}</td>
             <td class="text-sm nowrap"><template v-if="r.assignee">{{ r.assignee.name }}<span v-if="r.assignee.position" class="text-xs text-muted"> {{ r.assignee.position }}</span></template><span v-else class="text-muted">미지정</span></td>
             <td><StatusBadge :status="r.status" size="sm" /></td>
@@ -132,4 +132,6 @@ function open(r: RequestSummary) { router.push({ name: 'review', params: { id: r
 .inbox-table { min-width: 1060px; }
 /* 예상·신청일은 다른 텍스트 열과 같이 왼쪽 정렬 — 오른쪽 정렬이면 이웃 열에 붙어 열 경계가 흐트러진다. 숫자 폭만 고정 */
 .tnum { font-variant-numeric: tabular-nums; }
+/* 판정 조정 표시 — 셀 값 뒤에 작은 배지. 마우스를 올리면 신청 시 자동 판정이 보인다 */
+.adj { margin-left: 6px; font-size: 10.5px; padding: 1px 6px; vertical-align: 1px; }
 </style>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { session, isBrm, isAdmin, isDataBrm, logout } from '@/services/session';
+import { session, isBrm, isAdmin, isDataBrm, isGroupPlanner, logout } from '@/services/session';
 import mark from '@/assets/brand/ai-brm-portal-mark.png';
 /** 로그아웃 버튼은 로컬(목업 로그인 popup.html)에서만 — 목업 직원을 바꿔 가며 볼 때 쓴다. 개발계·운영계는 AI 포탈 SSO 로만 들어오므로 없다.
  *  빌드 모드(import.meta.env.DEV)로 가르면 .env 의 NODE_ENV 에 따라 운영 빌드에도 true 가 들어갈 수 있어(2026-09-08 운영에서 노출됨),
@@ -29,12 +29,18 @@ const showLogout = typeof window !== 'undefined' && /^(localhost|127[.]0[.]0[.]1
           <span class="nav-sep" aria-hidden="true"></span>
           <router-link to="/data" class="nav-link nav-link-brm">데이터 요청</router-link>
         </template>
+        <!-- 그룹기획 메뉴 — 신청된 모든 건의 접수현황을 조회만. 관리자도 확인용으로 본다 -->
+        <template v-if="isGroupPlanner || isAdmin">
+          <span class="nav-sep" aria-hidden="true"></span>
+          <router-link to="/status" class="nav-link nav-link-brm">접수현황 조회</router-link>
+        </template>
       </nav>
 
       <div class="nav-user">
         <span class="nav-name"><b>{{ session.user?.name }}</b><span class="text-muted text-sm"> · {{ session.user?.orgNm || '소속 미확인' }}</span></span>
         <span v-if="isBrm" class="badge" data-tone="brand">{{ isAdmin ? 'AX-BRM · 관리자' : 'AX-BRM' }}</span>
         <span v-else-if="isDataBrm" class="badge" data-tone="brand">DATA-BRM · 조회</span>
+        <span v-else-if="isGroupPlanner" class="badge" data-tone="brand">그룹기획 · 조회</span>
         <button v-if="showLogout" class="btn btn-ghost btn-sm" @click="logout" aria-label="로그아웃">로그아웃</button>
       </div>
     </div>

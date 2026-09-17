@@ -1,8 +1,9 @@
 import { Router } from 'express';
 import crypto from 'node:crypto';
 import { db, nowIso, parseJson, nextReqNo } from '../db/index.js';
-import { requireAuth, requireBrm, requireRequester, isBrm, isDataBrm, canReadRequest, HttpError } from '../auth.js';
+import { requireAuth, requireBrm, requireRequester, isBrm, isDataBrm, isGroupPlanner, canReadRequest, HttpError } from '../auth.js';
 import { DATA_REQUEST_SQL, isDataAnswers } from '../dataBrm.js';
+import { latestOverride, mergeJudgement, loadOverrides } from '../judgement.js';
 import { QUESTIONNAIRE_VERSION, nextQuestion, pruneAnswers } from '../../shared/questions.js';
 import { judge } from '../../shared/rules.js';
 import { STATUS, DECISION, MANUAL_TRANSITIONS } from '../../shared/statuses.js';
@@ -16,11 +17,20 @@ requestsRouter.use(requireAuth);
 
 const uuid = () => crypto.randomUUID();
 
-/** DB row → API 객체 */
-export function toRequest(row, { full = false } = {}) {
+/**
+ * DB row → API 객체.
+ * override — AX-BRM 이 의견 등록 때 조정한 판정(server/judgement.js). 있으면 judgement 는 **조정이 반영된 유효 판정**이고
+ *   judgementAdjusted 가 true, 원 판정은 judgementOriginal 로 같이 나간다. 목록·상세 모두 서버가 합쳐 주므로 화면은 judgement 만 보면 된다.
+ */
+export function toRequest(row, { full = false, override = null } = {}) {
   if (!row) return null;
   const answers = parseJson(row.answers, {});
-  const judgement = parseJson(row.judgement, null);
+  const original = parseJson(row.judgement, null);
+  const judgement = mergeJudgement(original, override);
+  const pick = (j) => ({
+    track: j.track, dataCase: j.dataCase, integration: j.integration, deploy: j.deploy,
+    pii: j.pii, leadtime: j.leadtime, ...(full ? j : {}),
+  });
   const out = {
     id: row.id, reqNo: row.req_no, title: row.title, status: row.status, channel: row.channel,
     requester: { employeeNo: row.requester_employee_no, name: row.requester_name, orgCd: row.requester_org_cd, orgNm: row.requester_org_nm, position: row.requester_position ?? null },
@@ -32,10 +42,9 @@ export function toRequest(row, { full = false } = {}) {
     closedAt: row.closed_at ?? null,
     questionnaireVersion: row.questionnaire_version,
     submittedAt: row.submitted_at, createdAt: row.created_at, updatedAt: row.updated_at,
-    judgement: judgement ? {
-      track: judgement.track, dataCase: judgement.dataCase, integration: judgement.integration, deploy: judgement.deploy,
-      pii: judgement.pii, leadtime: judgement.leadtime, ...(full ? judgement : {}),
-    } : null,
+    judgement: judgement ? pick(judgement) : null,
+    judgementAdjusted: !!(judgement && override),
+    judgementOriginal: judgement && override ? pick(original) : null,
   };
   if (full) out.answers = answers;
   return out;
@@ -61,15 +70,17 @@ async function addHistory(conn, requestId, from, to, user, note) {
 requestsRouter.get('/', async (req, res) => {
   const q = req.query;
   // scope: mine(요청자 본인) · all(AX-BRM 전체) · data(DATA-BRM — 행내 데이터 필요/모르겠음 건만, 조회 전용)
-  const scope = q.scope === 'all' ? 'all' : q.scope === 'data' ? 'data' : 'mine';
+  //        · status(그룹기획 — 신청된 모든 건, 조회 전용. AX-BRM/관리자도 확인용으로 쓸 수 있다. 조건은 all 과 같다)
+  const scope = q.scope === 'all' ? 'all' : q.scope === 'data' ? 'data' : q.scope === 'status' ? 'status' : 'mine';
   if (scope === 'all' && !isBrm(req.user)) throw new HttpError(403, 'AX-BRM 담당자만 전체 목록을 볼 수 있어요', 'FORBIDDEN');
+  if (scope === 'status' && !isBrm(req.user) && !isGroupPlanner(req.user)) throw new HttpError(403, '그룹기획 담당자만 접수현황을 볼 수 있어요', 'FORBIDDEN');
   if (scope === 'data' && !isBrm(req.user) && !isDataBrm(req.user)) throw new HttpError(403, 'DATA-BRM 담당자만 볼 수 있어요', 'FORBIDDEN');
 
   const where = [];
   const params = [];
   if (scope === 'mine') { where.push('requester_employee_no = ?'); params.push(req.user.employeeNo); }
   else if (scope === 'data') { where.push("status <> 'draft'", DATA_REQUEST_SQL); }
-  else { where.push("status <> 'draft'"); }
+  else { where.push("status <> 'draft'"); } // all · status
   if (q.status) { const list = String(q.status).split(','); where.push(`status IN (${list.map(() => '?').join(',')})`); params.push(...list); }
   if (q.org) { where.push('requester_org_nm = ?'); params.push(String(q.org)); }
   if (q.channel) { where.push('channel = ?'); params.push(String(q.channel)); }
@@ -84,7 +95,9 @@ requestsRouter.get('/', async (req, res) => {
     `SELECT * FROM requests ${where.length ? 'WHERE ' + where.join(' AND ') : ''} ORDER BY COALESCE(submitted_at, updated_at) DESC LIMIT 500`,
     params,
   );
-  let list = rows.map((r) => toRequest(r));
+  // 유효 판정 — AX-BRM 조정을 덮어서 내려 준다. 트랙 필터도 조정된 값 기준
+  const overrides = await loadOverrides(db, rows.map((r) => r.id));
+  let list = rows.map((r) => toRequest(r, { override: overrides.get(r.id) ?? null }));
   if (q.track) list = list.filter((r) => r.judgement?.track === q.track);
   res.json({ items: list });
 });
@@ -182,7 +195,7 @@ requestsRouter.get('/:id', async (req, res) => {
     db.all('SELECT * FROM comments WHERE request_id = ? ORDER BY created_at ASC', [row.id]),
   ]);
   res.json({
-    request: toRequest(row, { full: true }),
+    request: toRequest(row, { full: true, override: latestOverride(reviews) }),
     reviews: reviews.map((r) => ({
       id: r.id, reviewer: { employeeNo: r.reviewer_employee_no, name: r.reviewer_name }, decision: r.decision, feasible: r.feasible,
       approach: r.approach, opinion: r.opinion, estimatedWeeksMin: r.estimated_weeks_min, estimatedWeeksMax: r.estimated_weeks_max,

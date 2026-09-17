@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import { session, sessionSettled, isBrm, isAdmin, isDataBrm, canRequest } from './services/session';
+import { session, sessionSettled, isBrm, isAdmin, isDataBrm, isGroupPlanner, canRequest } from './services/session';
 import { flushDeletes } from './services/pendingDelete';
 
 export const router = createRouter({
@@ -20,6 +20,9 @@ export const router = createRouter({
     // DATA-BRM 조회 전용 — 행내 데이터가 필요한(모르겠다는) 요청만. 관리자도 확인용으로 들어갈 수 있다
     { path: '/data', name: 'data-inbox', component: () => import('./views/data/DataInboxView.vue'), meta: { title: '데이터 요청', data: true } },
     { path: '/data/requests/:id', name: 'data-review', component: () => import('./views/data/DataReviewView.vue'), meta: { title: '데이터 요청 상세', data: true } },
+    // 그룹기획 조회 전용 — 신청된 모든 건의 접수현황. 관리자도 확인용으로 들어갈 수 있다
+    { path: '/status', name: 'status-inbox', component: () => import('./views/status/StatusInboxView.vue'), meta: { title: '접수현황 조회', group: true } },
+    { path: '/status/requests/:id', name: 'status-review', component: () => import('./views/status/StatusReviewView.vue'), meta: { title: '접수현황 상세', group: true } },
     { path: '/brm/admin', name: 'admin', component: () => import('./views/brm/AdminView.vue'), meta: { title: '담당자 관리', brm: true, admin: true } },
     { path: '/:pathMatch(.*)*', name: 'notfound', component: () => import('./views/NotFoundView.vue'), meta: { title: '페이지를 찾을 수 없어요' } },
   ],
@@ -34,6 +37,7 @@ router.beforeEach(async (to) => {
   if (to.meta.brm && session.phase === 'ready' && !isBrm.value) return { name: 'home' };
   if (to.meta.admin && session.phase === 'ready' && !isAdmin.value) return { name: 'inbox' }; // 시스템 관리자만
   if (to.meta.data && session.phase === 'ready' && !isDataBrm.value && !isAdmin.value) return { name: 'home' }; // DATA-BRM(+관리자 확인용)
+  if (to.meta.group && session.phase === 'ready' && !isGroupPlanner.value && !isAdmin.value) return { name: 'home' }; // 그룹기획(+관리자 확인용)
   return true;
 });
 router.afterEach((to) => {

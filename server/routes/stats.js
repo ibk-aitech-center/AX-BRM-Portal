@@ -5,6 +5,7 @@ import { STATUS } from '../../shared/statuses.js';
 import { TRACK_LABEL, DATACASE_LABEL, INTEGRATION_LABEL, leadtimeText } from '../../shared/rules.js';
 import { CHANNEL_LABEL, DECISION } from '../../shared/statuses.js';
 import { CLOSURE_DEPLOY, CLOSURE_FORM, CLOSURE_DEPLOY_ORDER, CLOSURE_FORM_ORDER } from '../../shared/closure.js';
+import { latestOverride, mergeJudgement } from '../judgement.js';
 
 export const statsRouter = Router();
 statsRouter.use(requireAuth, requireBrm);
@@ -46,7 +47,14 @@ async function loadRows(q) {
     const m = await db.all(`SELECT DISTINCT request_id FROM attachments WHERE kind = 'mockup' AND request_id IN (${ph})`, ids);
     mockups = new Set(m.map((x) => x.request_id));
   }
-  return { from, to, rows: rows.map((r) => ({ ...r, j: parseJson(r.judgement, {}) || {}, hasMockup: mockups.has(r.id) })), reviews, history };
+  // j = 유효 판정 — AX-BRM 이 의견에서 조정한 값이 있으면 덮는다 (server/judgement.js). 요청 유형·데이터 케이스·연계 분포와 CSV 가 조정된 판정 기준
+  const reviewsByReq = new Map();
+  for (const r of reviews) { if (!reviewsByReq.has(r.request_id)) reviewsByReq.set(r.request_id, []); reviewsByReq.get(r.request_id).push(r); }
+  return {
+    from, to,
+    rows: rows.map((r) => ({ ...r, j: mergeJudgement(parseJson(r.judgement, {}) || {}, latestOverride(reviewsByReq.get(r.id))), hasMockup: mockups.has(r.id) })),
+    reviews, history,
+  };
 }
 
 /** 진행 상황 4분류 — 부서별·담당자별 막대가 같은 구분을 쓴다 */

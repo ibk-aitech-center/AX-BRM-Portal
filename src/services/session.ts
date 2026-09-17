@@ -4,7 +4,7 @@ import { getToken, discardToken, redirectToPortal, loopDetected, AUTH_REJECTED_E
 
 export interface User {
   employeeNo: string; name: string; orgCd: string | null; orgNm: string | null; position: string | null;
-  role: 'requester' | 'brm' | 'data_brm' | 'admin';
+  role: 'requester' | 'brm' | 'data_brm' | 'group_planner' | 'admin';
   /** 본부부서 직원만 상담을 요청할 수 있다 — 서버가 HR 미러의 조직속성코드로 판정. false 면 화면은 안내만 보여 준다 */
   canRequest: boolean;
 }
@@ -28,6 +28,8 @@ export const isBrm = computed(() => session.user?.role === 'brm' || session.user
 export const isAdmin = computed(() => session.user?.role === 'admin');
 /** DATA-BRM — 데이터 관련 요청 조회 전용. AX-BRM(isBrm) 과는 별개 역할 */
 export const isDataBrm = computed(() => session.user?.role === 'data_brm');
+/** 그룹기획 — 신청된 모든 건의 접수현황 조회 전용. AX-BRM(isBrm) 과는 별개 역할 */
+export const isGroupPlanner = computed(() => session.user?.role === 'group_planner');
 /** 상담 요청 자격 — 본부부서 직원(서버 판정). 역할과 무관하게 admin·brm 도 같은 규칙 */
 export const canRequest = computed(() => session.user?.canRequest === true);
 

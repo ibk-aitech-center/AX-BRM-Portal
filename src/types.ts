@@ -14,7 +14,11 @@ export interface RequestSummary {
   /** 완료 처리 때 고른 종결 분류(배포 위치 · 완성 형태) — 완료 전이면 null */
   closure: Closure | null; closedAt: string | null;
   submittedAt: string | null; createdAt: string; updatedAt: string;
+  /** 유효 판정 — 서버가 AX-BRM 조정(의견의 judgementOverride)을 덮어서 준다. 화면은 이 값만 보면 된다 */
   judgement: Partial<Judgement> | null;
+  /** AX-BRM 이 판정을 조정했는지 — true 면 judgement 는 조정본, judgementOriginal 이 신청 시 자동 판정 */
+  judgementAdjusted?: boolean;
+  judgementOriginal?: Partial<Judgement> | null;
 }
 export interface RequestFull extends RequestSummary { answers: Answers; judgement: Judgement | null }
 

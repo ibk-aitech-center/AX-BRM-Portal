@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS users (
   org_cd          TEXT,
   org_nm          TEXT,
   position        TEXT,                                -- 직책 (토큰 position 클레임 · 없으면 NULL)
-  role            TEXT NOT NULL DEFAULT 'requester',   -- requester | brm | data_brm | admin
+  role            TEXT NOT NULL DEFAULT 'requester',   -- requester | brm | data_brm | group_planner | admin
   created_at      TEXT NOT NULL,
   last_login_at   TEXT
 );
