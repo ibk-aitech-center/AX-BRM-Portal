@@ -96,6 +96,15 @@
 | author_employee_no / author_name / author_role | TEXT | |
 | body / created_at | TEXT | |
 
+## request_reads — 미읽음 표시용 열람 기록
+
+역할 화면(접수함·데이터 요청·접수현황 조회) 사용자가 요청 상세를 **연 시각**. 판정은 `server/unread.js`: 기록 없음 = 신규(`new`), `requests.updated_at > read_at` = 업데이트(`updated`). 상단 메뉴 배지는 신규만 센다. 요청자 본인 건은 기록하지 않는다.
+
+| 컬럼 | 타입 | 설명 |
+|---|---|---|
+| request_id / employee_no | TEXT PK(복합) | 요청 · 열람한 직원 사번 |
+| read_at | TEXT NOT NULL | 마지막으로 연 시각 (ISO-8601) — 다시 열면 갱신 |
+
 ## counters — 접수번호 발급기
 
 | 컬럼 | 타입 | 설명 |

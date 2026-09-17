@@ -4,6 +4,7 @@ import { db, nowIso, parseJson, nextReqNo } from '../db/index.js';
 import { requireAuth, requireBrm, requireRequester, isBrm, isDataBrm, isGroupPlanner, canReadRequest, HttpError } from '../auth.js';
 import { DATA_REQUEST_SQL, isDataAnswers } from '../dataBrm.js';
 import { latestOverride, mergeJudgement, loadOverrides } from '../judgement.js';
+import { unreadState, READ_JOIN_SQL, NEW_SQL, markRead } from '../unread.js';
 import { QUESTIONNAIRE_VERSION, nextQuestion, pruneAnswers } from '../../shared/questions.js';
 import { judge } from '../../shared/rules.js';
 import { STATUS, DECISION, MANUAL_TRANSITIONS } from '../../shared/statuses.js';
@@ -67,39 +68,84 @@ async function addHistory(conn, requestId, from, to, user, note) {
 }
 
 // ── 목록 ────────────────────────────────────────────────────────
-requestsRouter.get('/', async (req, res) => {
-  const q = req.query;
-  // scope: mine(요청자 본인) · all(AX-BRM 전체) · data(DATA-BRM — 행내 데이터 필요/모르겠음 건만, 조회 전용)
-  //        · status(그룹기획 — 신청된 모든 건, 조회 전용. AX-BRM/관리자도 확인용으로 쓸 수 있다. 조건은 all 과 같다)
-  const scope = q.scope === 'all' ? 'all' : q.scope === 'data' ? 'data' : q.scope === 'status' ? 'status' : 'mine';
-  if (scope === 'all' && !isBrm(req.user)) throw new HttpError(403, 'AX-BRM 담당자만 전체 목록을 볼 수 있어요', 'FORBIDDEN');
-  if (scope === 'status' && !isBrm(req.user) && !isGroupPlanner(req.user)) throw new HttpError(403, '그룹기획 담당자만 접수현황을 볼 수 있어요', 'FORBIDDEN');
-  if (scope === 'data' && !isBrm(req.user) && !isDataBrm(req.user)) throw new HttpError(403, 'DATA-BRM 담당자만 볼 수 있어요', 'FORBIDDEN');
-
+/**
+ * scope 별 권한 검사 + 기본 WHERE — 목록·미읽음 건수·전체 읽음 처리가 같이 쓴다 (셋이 어긋나지 않게 한 곳에).
+ *   mine(요청자 본인) · all(AX-BRM 전체) · data(DATA-BRM — 행내 데이터 필요/모르겠음 건만, 조회 전용)
+ *   · status(그룹기획 — 신청된 모든 건, 조회 전용. AX-BRM/관리자도 확인용으로 쓸 수 있다. 조건은 all 과 같다)
+ * 컬럼은 requests 별칭 r 기준.
+ */
+function scopeWhere(rawScope, user) {
+  const scope = rawScope === 'all' ? 'all' : rawScope === 'data' ? 'data' : rawScope === 'status' ? 'status' : 'mine';
+  if (scope === 'all' && !isBrm(user)) throw new HttpError(403, 'AX-BRM 담당자만 전체 목록을 볼 수 있어요', 'FORBIDDEN');
+  if (scope === 'status' && !isBrm(user) && !isGroupPlanner(user)) throw new HttpError(403, '그룹기획 담당자만 접수현황을 볼 수 있어요', 'FORBIDDEN');
+  if (scope === 'data' && !isBrm(user) && !isDataBrm(user)) throw new HttpError(403, 'DATA-BRM 담당자만 볼 수 있어요', 'FORBIDDEN');
   const where = [];
   const params = [];
-  if (scope === 'mine') { where.push('requester_employee_no = ?'); params.push(req.user.employeeNo); }
-  else if (scope === 'data') { where.push("status <> 'draft'", DATA_REQUEST_SQL); }
-  else { where.push("status <> 'draft'"); } // all · status
-  if (q.status) { const list = String(q.status).split(','); where.push(`status IN (${list.map(() => '?').join(',')})`); params.push(...list); }
-  if (q.org) { where.push('requester_org_nm = ?'); params.push(String(q.org)); }
-  if (q.channel) { where.push('channel = ?'); params.push(String(q.channel)); }
-  // AX-BRM 담당자 — 사번, 또는 'none'(미지정)
-  if (q.assignee === 'none') where.push('assignee_employee_no IS NULL');
-  else if (q.assignee) { where.push('assignee_employee_no = ?'); params.push(String(q.assignee)); }
-  if (q.from) { where.push('submitted_at >= ?'); params.push(String(q.from)); }
-  if (q.to) { where.push('submitted_at < ?'); params.push(String(q.to)); }
-  if (q.q) { where.push('(title LIKE ? OR req_no LIKE ? OR requester_name LIKE ?)'); const like = `%${String(q.q)}%`; params.push(like, like, like); }
+  if (scope === 'mine') { where.push('r.requester_employee_no = ?'); params.push(user.employeeNo); }
+  else if (scope === 'data') { where.push("r.status <> 'draft'", DATA_REQUEST_SQL.replace(/answers LIKE/g, 'r.answers LIKE')); }
+  else { where.push("r.status <> 'draft'"); } // all · status
+  return { scope, where, params };
+}
+/** 사용자가 볼 수 있는 역할 scope — 미읽음 건수 응답의 키 */
+function roleScopes(user) {
+  if (isBrm(user)) return ['all', 'data', 'status'];
+  if (isDataBrm(user)) return ['data'];
+  if (isGroupPlanner(user)) return ['status'];
+  return [];
+}
 
+requestsRouter.get('/', async (req, res) => {
+  const q = req.query;
+  const { scope, where, params } = scopeWhere(q.scope, req.user);
+  if (q.status) { const list = String(q.status).split(','); where.push(`r.status IN (${list.map(() => '?').join(',')})`); params.push(...list); }
+  if (q.org) { where.push('r.requester_org_nm = ?'); params.push(String(q.org)); }
+  if (q.channel) { where.push('r.channel = ?'); params.push(String(q.channel)); }
+  // AX-BRM 담당자 — 사번, 또는 'none'(미지정)
+  if (q.assignee === 'none') where.push('r.assignee_employee_no IS NULL');
+  else if (q.assignee) { where.push('r.assignee_employee_no = ?'); params.push(String(q.assignee)); }
+  if (q.from) { where.push('r.submitted_at >= ?'); params.push(String(q.from)); }
+  if (q.to) { where.push('r.submitted_at < ?'); params.push(String(q.to)); }
+  if (q.q) { where.push('(r.title LIKE ? OR r.req_no LIKE ? OR r.requester_name LIKE ?)'); const like = `%${String(q.q)}%`; params.push(like, like, like); }
+
+  // 역할 scope 는 내 열람 기록을 같이 읽어 미읽음(new·updated)을 판정한다 (server/unread.js). mine 은 표시하지 않는다
+  const withReads = scope !== 'mine';
   const rows = await db.all(
-    `SELECT * FROM requests ${where.length ? 'WHERE ' + where.join(' AND ') : ''} ORDER BY COALESCE(submitted_at, updated_at) DESC LIMIT 500`,
-    params,
+    `SELECT r.*${withReads ? ', rr.read_at AS my_read_at' : ''} FROM requests r ${withReads ? READ_JOIN_SQL : ''}
+      ${where.length ? 'WHERE ' + where.join(' AND ') : ''} ORDER BY COALESCE(r.submitted_at, r.updated_at) DESC LIMIT 500`,
+    withReads ? [req.user.employeeNo, ...params] : params,
   );
   // 유효 판정 — AX-BRM 조정을 덮어서 내려 준다. 트랙 필터도 조정된 값 기준
   const overrides = await loadOverrides(db, rows.map((r) => r.id));
-  let list = rows.map((r) => toRequest(r, { override: overrides.get(r.id) ?? null }));
+  let list = rows.map((r) => ({ ...toRequest(r, { override: overrides.get(r.id) ?? null }), ...(withReads ? { unread: unreadState(r, r.my_read_at) } : {}) }));
   if (q.track) list = list.filter((r) => r.judgement?.track === q.track);
   res.json({ items: list });
+});
+
+// ── 미읽음 (server/unread.js) ───────────────────────────────────
+/** 상단 메뉴 배지용 — 역할 scope 별 **신규(한 번도 안 연)** 건수만. 업데이트 건은 세지 않는다 (2026-09-18 결정) */
+requestsRouter.get('/unread-count', async (req, res) => {
+  const out = {};
+  for (const s of roleScopes(req.user)) {
+    const { where, params } = scopeWhere(s, req.user);
+    const row = await db.get(
+      `SELECT COUNT(*) AS n FROM requests r ${READ_JOIN_SQL} WHERE ${[...where, NEW_SQL].join(' AND ')}`,
+      [req.user.employeeNo, ...params],
+    );
+    out[s] = Number(row?.n ?? 0);
+  }
+  res.json(out);
+});
+
+/**
+ * 전체 읽음 처리 — body { scope }. 필터와 무관하게 그 메뉴에서 볼 수 있는 전부(신규·업데이트 모두)를 지금 시각으로 기록한다.
+ * 기능 도입 시점에 기존 건이 전부 "신규"로 보이는 것을 한 번에 지우는 용도이기도 하다.
+ */
+requestsRouter.post('/read-all', async (req, res) => {
+  const { scope, where, params } = scopeWhere(req.body?.scope, req.user);
+  if (scope === 'mine') throw new HttpError(400, '읽음 처리할 메뉴가 아니에요', 'BAD_SCOPE');
+  const rows = await db.all(`SELECT r.id FROM requests r WHERE ${where.join(' AND ')}`, params);
+  await db.transaction(async (tx) => { await markRead(tx || db, rows.map((r) => r.id), req.user.employeeNo); });
+  res.json({ ok: true, marked: rows.length });
 });
 
 // 필터용 메타 (부서 목록 · 담당자 목록)
@@ -208,6 +254,10 @@ requestsRouter.get('/:id', async (req, res) => {
     })),
     comments: comments.map((c) => ({ id: c.id, author: { employeeNo: c.author_employee_no, name: c.author_name, role: c.author_role }, body: c.body, createdAt: c.created_at })),
   });
+  // 열람 기록 — 역할 화면 사용자만(요청자 본인 건은 제외). 조회 전용 역할도 기록한다: 자기 열람 흔적일 뿐 요청 데이터를 바꾸지 않는다
+  if (row.requester_employee_no !== req.user.employeeNo && row.status !== 'draft' && roleScopes(req.user).length) {
+    markRead(db, [row.id], req.user.employeeNo).catch((e) => console.warn('[unread] mark failed', e?.message || e));
+  }
 });
 
 // ── 삭제 ────────────────────────────────────────────────────────
@@ -230,7 +280,7 @@ requestsRouter.delete('/:id', async (req, res) => {
   const counts = await db.transaction(async (tx) => {
     const conn = tx || db;
     const n = {};
-    for (const t of ['comments', 'attachments', 'status_history', 'request_reviews']) n[t] = (await conn.run(`DELETE FROM ${t} WHERE request_id = ?`, [row.id])).changes;
+    for (const t of ['comments', 'attachments', 'status_history', 'request_reviews', 'request_reads']) n[t] = (await conn.run(`DELETE FROM ${t} WHERE request_id = ?`, [row.id])).changes;
     await conn.run('DELETE FROM requests WHERE id = ?', [row.id]);
     return n;
   });

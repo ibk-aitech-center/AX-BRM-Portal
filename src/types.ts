@@ -19,6 +19,8 @@ export interface RequestSummary {
   /** AX-BRM 이 판정을 조정했는지 — true 면 judgement 는 조정본, judgementOriginal 이 신청 시 자동 판정 */
   judgementAdjusted?: boolean;
   judgementOriginal?: Partial<Judgement> | null;
+  /** 미읽음(역할 목록만) — new: 한 번도 안 연 신규 건 · updated: 열어 본 뒤 갱신된 건 · null/없음: 읽음. 서버 판정(server/unread.js) */
+  unread?: 'new' | 'updated' | null;
 }
 export interface RequestFull extends RequestSummary { answers: Answers; judgement: Judgement | null }
 

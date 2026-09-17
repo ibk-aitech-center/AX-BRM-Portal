@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
- * 그룹기획 접수현황 목록 — 조회 전용.
- * 서버가 scope=status 로 **신청된 모든 건**(초안 제외)을 돌려준다 (server/groupPlanner.js) — 데이터 요청 메뉴와 달리 조건이 없다.
+ * DATA-BRM 데이터 요청 목록 — 조회 전용.
+ * 서버가 scope=data 로 "행내 데이터가 필요한가요?" 에 네·모르겠어요 로 답한 건만 돌려준다 (server/dataBrm.js).
  * 접수함(InboxView)과 같은 표 구조지만 담당자 지정·검토 같은 쓰기 동작은 어디에도 없다.
  */
 import Icon3d from '@/components/Icon3d.vue';
@@ -10,8 +10,8 @@ import { useRouter } from 'vue-router';
 import { api, humanMessage } from '@/services/api';
 import type { RequestSummary } from '@/types';
 import { STATUS, STATUS_ORDER } from '@shared/statuses.js';
-import { TRACK_LABEL } from '@shared/rules.js';
-import StatusShell from '@/components/StatusShell.vue';
+import { DATACASE_LABEL, INTEGRATION_LABEL } from '@shared/rules.js';
+import DataShell from '@/components/DataShell.vue';
 import StatusBadge from '@/components/StatusBadge.vue';
 import SegControl from '@/components/SegControl.vue';
 import { fmtDate, fmtRelative } from '@/services/format';
@@ -25,7 +25,7 @@ const error = ref('');
 const f = ref({ status: [] as string[], q: '', from: '', to: '' });
 const S = STATUS as Record<string, { label: string }>;
 type L = { label: string };
-const TL = TRACK_LABEL as Record<string, L>;
+const DL = DATACASE_LABEL as Record<string, L>; const IL = INTEGRATION_LABEL as Record<string, L>;
 const statusChips = STATUS_ORDER.filter((s) => s !== 'draft');
 const groups = [
   { key: 'todo', label: '검토 대기', statuses: ['submitted'] },
@@ -37,7 +37,7 @@ const groups = [
 async function load() {
   loading.value = true; error.value = '';
   try {
-    const p = new URLSearchParams({ scope: 'status' });
+    const p = new URLSearchParams({ scope: 'data' });
     if (f.value.status.length) p.set('status', f.value.status.join(','));
     if (f.value.q) p.set('q', f.value.q);
     if (f.value.from) p.set('from', new Date(f.value.from).toISOString());
@@ -63,18 +63,20 @@ const group = computed<string | null>({
   get: () => !f.value.status.length ? 'all' : (groups.find((g) => g.statuses.length === f.value.status.length && g.statuses.every((s) => f.value.status.includes(s)))?.key ?? null),
   set: (k) => { const g = groups.find((x) => x.key === k); f.value.status = g ? [...g.statuses] : []; },
 });
-/** 판정 스냅샷의 진행 트랙 — 짧은 라벨 */
-const track = (r: RequestSummary) => r.judgement?.track ? TL[r.judgement.track]?.label ?? r.judgement.track : '-';
-function open(r: RequestSummary) { router.push({ name: 'status-review', params: { id: r.id } }); }
+/** 판정 스냅샷의 데이터 케이스·연계 방식 — 짧은 라벨 */
+const dataCase = (r: RequestSummary) => r.judgement?.dataCase ? DL[r.judgement.dataCase]?.label ?? r.judgement.dataCase : '-';
+const integration = (r: RequestSummary) => r.judgement?.integration ? IL[r.judgement.integration]?.label ?? r.judgement.integration : '-';
+const piiLabel = (r: RequestSummary) => r.judgement?.pii === 'yes' ? '포함' : r.judgement?.pii === 'no' ? '없음' : '미확인';
+function open(r: RequestSummary) { router.push({ name: 'data-review', params: { id: r.id } }); }
 </script>
 
 <template>
-  <StatusShell>
+  <DataShell>
     <div class="row-between wrap mb-lg">
       <div>
-        <p class="eyebrow">그룹기획</p>
-        <h1 style="font-size:24px;margin-top:4px">접수현황 조회</h1>
-        <p class="text-sm text-sub mt-sm">신청된 모든 요청의 접수·진행 현황을 보여요. 처리 상황은 AX-BRM 담당자가 종합해서 등록해요.</p>
+        <p class="eyebrow">데이터 협의</p>
+        <h1 style="font-size:24px;margin-top:4px">데이터 요청</h1>
+        <p class="text-sm text-sub mt-sm">요청자가 "행내 데이터를 읽어야 해요" 또는 "잘 모르겠어요"라고 답한 요청만 보여요. 처리 상황은 AX-BRM 담당자가 종합해서 등록해요.</p>
       </div>
       <SegControl v-model="group" :options="groupOpts" aria-label="상태 묶음" />
     </div>
@@ -91,18 +93,20 @@ function open(r: RequestSummary) { router.push({ name: 'status-review', params: 
 
     <div v-if="loading" class="center" style="padding:48px" role="status"><div class="spinner" style="margin:0 auto" aria-hidden="true"></div></div>
     <div v-else-if="error" class="empty card"><div class="empty-emoji" aria-hidden="true">☁️</div><div class="empty-title">{{ error }}</div><button class="btn btn-secondary mt-md" @click="load">다시 불러오기</button></div>
-    <div v-else-if="!items.length" class="empty card"><div class="empty-emoji" aria-hidden="true"><Icon3d name="document-analytics" :size="48" /></div><div class="empty-title">조건에 맞는 요청이 없어요</div><p>필터를 바꾸거나 "전체"를 눌러보세요.</p></div>
+    <div v-else-if="!items.length" class="empty card"><div class="empty-emoji" aria-hidden="true"><Icon3d name="document-analytics" :size="48" /></div><div class="empty-title">조건에 맞는 데이터 요청이 없어요</div><p>필터를 바꾸거나 "전체"를 눌러보세요.</p></div>
     <template v-else>
-    <UnreadLegend scope="status" :new-count="unreadNew" :updated-count="unreadUpdated" @done="load" />
+    <UnreadLegend scope="data" :new-count="unreadNew" :updated-count="unreadUpdated" @done="load" />
     <div class="table-wrap">
       <table class="table data-table">
-        <thead><tr><th>접수번호</th><th>제목</th><th>요청자 · 부서</th><th>진행 트랙</th><th>AX-BRM 담당자</th><th>상태</th><th>신청일</th><th>업데이트</th></tr></thead>
+        <thead><tr><th>접수번호</th><th>제목</th><th>요청자 · 부서</th><th>데이터 케이스</th><th>연계 방식(초안)</th><th>개인정보</th><th>AX-BRM 담당자</th><th>상태</th><th>신청일</th><th>업데이트</th></tr></thead>
         <tbody>
           <tr v-for="r in items" :key="r.id" data-clickable tabindex="0" @click="open(r)" @keydown.enter="open(r)">
             <td class="identifier text-xs nowrap" style="word-break:normal"><span v-if="r.unread" class="unread-dot" :data-unread="r.unread" :title="UNREAD_LABEL[r.unread]" :aria-label="UNREAD_LABEL[r.unread]" style="margin-right:6px"></span>{{ r.reqNo }}</td>
             <td :class="r.unread ? 'fw-700' : 'fw-600'" style="min-width:220px;max-width:360px">{{ r.title }}</td>
             <td><div>{{ r.requester.name }}</div><div class="text-xs text-muted">{{ r.requester.orgNm || '-' }}</div></td>
-            <td class="text-sm nowrap">{{ track(r) }}<span v-if="r.judgementAdjusted" class="badge adj" data-tone="brand" :title="`신청 시 자동 판정: ${r.judgementOriginal?.track ? TL[r.judgementOriginal.track]?.label ?? r.judgementOriginal.track : '-'} → AX-BRM 이 조정`">조정</span></td>
+            <td class="text-sm nowrap">{{ dataCase(r) }}</td>
+            <td class="text-sm nowrap">{{ integration(r) }}</td>
+            <td class="text-sm nowrap"><span class="badge" :data-tone="r.judgement?.pii === 'yes' ? 'warning' : 'neutral'">{{ piiLabel(r) }}</span></td>
             <td class="text-sm nowrap"><template v-if="r.assignee">{{ r.assignee.name }}<span v-if="r.assignee.position" class="text-xs text-muted"> {{ r.assignee.position }}</span></template><span v-else class="text-muted">미지정</span></td>
             <td><StatusBadge :status="r.status" size="sm" /></td>
             <td class="text-sm nowrap tnum">{{ fmtDate(r.submittedAt) }}</td>
@@ -112,11 +116,10 @@ function open(r: RequestSummary) { router.push({ name: 'status-review', params: 
       </table>
     </div>
     </template>
-  </StatusShell>
+  </DataShell>
 </template>
 
 <style scoped>
-.data-table { min-width: 960px; }
+.data-table { min-width: 1120px; }
 .tnum { font-variant-numeric: tabular-nums; }
-.adj { margin-left: 6px; font-size: 10.5px; padding: 1px 6px; vertical-align: 1px; }
 </style>

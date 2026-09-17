@@ -119,6 +119,14 @@ CREATE TABLE IF NOT EXISTS comments (
 );
 CREATE INDEX IF NOT EXISTS idx_comments_request ON comments(request_id);
 
+-- 미읽음 표시 — 역할 화면 사용자가 요청 상세를 연 시각 (server/unread.js). 기록 없음 = 신규, requests.updated_at > read_at = 업데이트
+CREATE TABLE IF NOT EXISTS request_reads (
+  request_id  TEXT NOT NULL,
+  employee_no TEXT NOT NULL,
+  read_at     TEXT NOT NULL,
+  PRIMARY KEY (request_id, employee_no)
+);
+
 CREATE TABLE IF NOT EXISTS counters (
   year  INTEGER PRIMARY KEY,
   seq   INTEGER NOT NULL

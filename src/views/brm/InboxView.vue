@@ -12,6 +12,8 @@ import SegControl from '@/components/SegControl.vue';
 import ComboSelect from '@/components/ComboSelect.vue';
 import type { ComboOption } from '@/components/ComboSelect.vue';
 import { fmtDate, fmtRelative } from '@/services/format';
+import UnreadLegend from '@/components/UnreadLegend.vue';
+import { UNREAD_LABEL } from '@/services/unread';
 
 const router = useRouter();
 const route = useRoute();
@@ -67,6 +69,9 @@ const assigneeOpts = computed<ComboOption[]>(() => [
   ...assignees.value.map((a) => ({ value: a.employeeNo, label: `${a.name || a.employeeNo}${a.position ? ' ' + a.position : ''}`, count: a.count, keywords: a.employeeNo })),
 ]);
 const counts = computed(() => Object.fromEntries(groups.map((g) => [g.key, items.value.filter((r) => g.statuses.includes(r.status)).length])));
+// 미읽음 건수(현재 목록 기준) — 범례 숫자·전체 읽음 버튼 활성 여부
+const unreadNew = computed(() => items.value.filter((r) => r.unread === 'new').length);
+const unreadUpdated = computed(() => items.value.filter((r) => r.unread === 'updated').length);
 function toggleStatus(s: string) { const i = f.value.status.indexOf(s); if (i >= 0) f.value.status.splice(i, 1); else f.value.status.push(s); }
 function setGroup(g: typeof groups[number]) { f.value.status = [...g.statuses]; }
 // 상단 묶음 선택은 단일 선택 — 세그먼트 컨트롤. 상세 상태 칩을 손으로 섞어 고르면 어느 묶음도 아님(null)
@@ -105,13 +110,15 @@ function open(r: RequestSummary) { router.push({ name: 'review', params: { id: r
     <div v-if="loading" class="center" style="padding:48px" role="status"><div class="spinner" style="margin:0 auto" aria-hidden="true"></div></div>
     <div v-else-if="error" class="empty card"><div class="empty-emoji" aria-hidden="true">☁️</div><div class="empty-title">{{ error }}</div><button class="btn btn-secondary mt-md" @click="load">다시 불러오기</button></div>
     <div v-else-if="!items.length" class="empty card"><div class="empty-emoji" aria-hidden="true"><Icon3d name="inbox-mail" :size="48" /></div><div class="empty-title">조건에 맞는 요청이 없어요</div><p>필터를 바꾸거나 "전체"를 눌러보세요.</p></div>
-    <div v-else class="table-wrap">
+    <template v-else>
+    <UnreadLegend scope="all" :new-count="unreadNew" :updated-count="unreadUpdated" @done="load" />
+    <div class="table-wrap">
       <table class="table inbox-table">
         <thead><tr><th>접수번호</th><th>제목</th><th>요청자 · 부서</th><th>계기</th><th>지원 유형</th><th title="요건 확정 후 개발 예상 기간 · 참고용 초안">개발 예상(요건 확정 후)</th><th>담당자</th><th>상태</th><th>신청일</th><th>업데이트</th></tr></thead>
         <tbody>
           <tr v-for="r in items" :key="r.id" data-clickable tabindex="0" @click="open(r)" @keydown.enter="open(r)">
-            <td class="identifier text-xs nowrap" style="word-break:normal">{{ r.reqNo }}</td>
-            <td class="fw-600" style="min-width:220px;max-width:360px">{{ r.title }}</td>
+            <td class="identifier text-xs nowrap" style="word-break:normal"><span v-if="r.unread" class="unread-dot" :data-unread="r.unread" :title="UNREAD_LABEL[r.unread]" :aria-label="UNREAD_LABEL[r.unread]" style="margin-right:6px"></span>{{ r.reqNo }}</td>
+            <td :class="r.unread ? 'fw-700' : 'fw-600'" style="min-width:220px;max-width:360px">{{ r.title }}</td>
             <td><div>{{ r.requester.name }}</div><div class="text-xs text-muted">{{ r.requester.orgNm || '-' }}</div></td>
             <td class="text-sm nowrap">{{ CH[r.channel || ''] || '-' }}</td>
             <td class="text-sm nowrap">{{ r.judgement?.track ? TRACK_LABEL[r.judgement.track].label : '-' }}<span v-if="r.judgementAdjusted" class="badge adj" data-tone="brand" :title="`신청 시 자동 판정: ${r.judgementOriginal?.track ? TRACK_LABEL[r.judgementOriginal.track].label : '-'} → AX-BRM 이 조정`">조정</span></td>
@@ -124,6 +131,7 @@ function open(r: RequestSummary) { router.push({ name: 'review', params: { id: r
         </tbody>
       </table>
     </div>
+    </template>
   </BrmShell>
 </template>
 

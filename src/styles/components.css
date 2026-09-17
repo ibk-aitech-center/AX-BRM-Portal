@@ -121,6 +121,11 @@
 .badge[data-tone="brand"] { background: var(--brand-100); color: var(--brand-700); }
 .badge[data-tone="neutral"] { background: var(--surface-2); color: var(--text-sub); }
 
+/* ── 미읽음 점 (접수함·데이터 요청·접수현황 조회 목록 + 범례) — new 빨강 · updated 노랑(채움용 토큰). 문구는 services/unread.ts UNREAD_LABEL ── */
+.unread-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; flex: none; vertical-align: 1px; }
+.unread-dot[data-unread="new"] { background: var(--danger); }
+.unread-dot[data-unread="updated"] { background: var(--warning-fill); }
+
 /* ── 칩 ── */
 .chip {
   display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 14px;

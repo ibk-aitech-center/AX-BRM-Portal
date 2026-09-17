@@ -63,6 +63,8 @@ r = await api('GET', `/api/requests?scope=all`, null, reqToken); assert.equal(r.
 // 3) BRM 검토
 step('BRM 접수함 · 검토 의견 · 상태 전이');
 r = await api('GET', '/api/requests?scope=all', null, brmToken); assert.equal(r.status, 200); assert.ok(r.json.items.some((x) => x.id === id));
+assert.equal(r.json.items.find((x) => x.id === id).unread, 'new', '아직 안 연 건은 new');
+r = await api('GET', '/api/requests/unread-count', null, brmToken); assert.equal(r.status, 200); assert.ok(r.json.all >= 1, '신규 건수 배지');
 r = await api('POST', `/api/requests/${id}/reviews`, { decision: 'note', opinion: '1차 검토 시작' }, brmToken); assert.equal(r.status, 201); assert.equal(r.json.status, 'reviewing');
 r = await api('POST', `/api/requests/${id}/reviews`, { decision: 'accept', feasible: 'yes', approach: 'BDP 일배치 + AI-HUB', opinion: '표준 경로로 진행 가능', estimatedWeeksMin: 10, estimatedWeeksMax: 14 }, brmToken);
 assert.equal(r.status, 201); assert.equal(r.json.status, 'accepted');

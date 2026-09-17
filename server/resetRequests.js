@@ -1,7 +1,7 @@
 /**
  * 신청 데이터 전체 초기화 — 오픈 전 리얼테스트 데이터를 지울 때. 관리 화면(POST /api/admin/reset-requests)과 CLI(server/scripts/reset-requests.js)가 같이 쓴다.
  *
- * 지움: requests · request_reviews · status_history · comments · attachments(+ UPLOAD_DIR 의 실제 파일) · counters(접수번호 카운터)
+ * 지움: requests · request_reviews · status_history · comments · attachments(+ UPLOAD_DIR 의 실제 파일) · request_reads(열람 기록) · counters(접수번호 카운터)
  *   → 다음 신청은 BRM-YYYY-0001 부터. (단건 삭제는 counters 를 되감지 않아 번호가 건너뛴다 — 그래서 "전체 초기화"만 제공한다)
  * 남김: users(역할) · tbl_employee_adv(HR 미러) · app_meta(관리자 시드 플래그)
  * 되돌릴 수 없다 — 호출 측이 확인 절차(확인 문구 입력 · --yes)를 책임진다.
@@ -9,7 +9,7 @@
 import { db } from './db/index.js';
 import { removeFile } from './storage.js';
 
-export const RESET_TABLES = ['comments', 'attachments', 'status_history', 'request_reviews', 'requests', 'counters'];
+export const RESET_TABLES = ['comments', 'attachments', 'status_history', 'request_reviews', 'request_reads', 'requests', 'counters'];
 /** 관리 화면·CLI 가 실제 초기화 전에 요구하는 확인 문구 */
 export const RESET_CONFIRM_WORD = '초기화';
 

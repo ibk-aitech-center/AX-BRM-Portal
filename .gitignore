@@ -1,6 +1,6 @@
 node_modules/
-dist/
-data/
+/dist/
+/data/
 .env
 public/popup.html
 *.log
