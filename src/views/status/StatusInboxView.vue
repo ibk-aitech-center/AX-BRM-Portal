@@ -29,9 +29,8 @@ const TL = TRACK_LABEL as Record<string, L>;
 const statusChips = STATUS_ORDER.filter((s) => s !== 'draft');
 const groups = [
   { key: 'todo', label: '검토 대기', statuses: ['submitted'] },
-  { key: 'wip', label: '진행 중', statuses: ['reviewing', 'hold', 'accepted', 'developing'] },
-  { key: 'hold', label: '보완 요청', statuses: ['hold'] },
-  { key: 'closed', label: '종결', statuses: ['done', 'guided', 'rejected'] },
+  { key: 'wip', label: '진행 중', statuses: ['reviewing', 'hold', 'accepted', 'developing'] }, // 보완 요청 포함 — 별도 버튼은 2026-09-23 제거
+  { key: 'closed', label: '종결', statuses: ['done', 'guided', 'rejected'] }, // 완료 · 협의 종결 (· 과거 안내 종결)
 ];
 
 async function load() {
@@ -42,7 +41,8 @@ async function load() {
     if (f.value.q) p.set('q', f.value.q);
     if (f.value.from) p.set('from', new Date(f.value.from).toISOString());
     if (f.value.to) { const t = new Date(f.value.to); t.setDate(t.getDate() + 1); p.set('to', t.toISOString()); }
-    items.value = (await api.get<{ items: RequestSummary[] }>(`/api/requests?${p}`)).items;
+    const a = await api.get<{ items: RequestSummary[]; statusCounts: Record<string, number> }>(`/api/requests?${p}`);
+    items.value = a.items; statusCounts.value = a.statusCounts || {};
   } catch (e) { error.value = humanMessage(e); }
   finally { loading.value = false; }
 }
@@ -50,14 +50,17 @@ onMounted(load);
 let t: ReturnType<typeof setTimeout>;
 watch(f, () => { clearTimeout(t); t = setTimeout(load, 300); }, { deep: true });
 
-const counts = computed(() => Object.fromEntries(groups.map((g) => [g.key, items.value.filter((r) => g.statuses.includes(r.status)).length])));
+// 묶음 버튼 숫자 — 서버가 상태 조건만 뺀 나머지 조건으로 센 값. 어느 버튼을 눌러도 숫자가 흔들리지 않는다 (2026-09-23)
+const statusCounts = ref<Record<string, number>>({});
+const counts = computed(() => Object.fromEntries(groups.map((g) => [g.key, g.statuses.reduce((n, st) => n + (statusCounts.value[st] || 0), 0)])));
+const total = computed(() => Object.values(statusCounts.value).reduce((n, v) => n + v, 0));
 // 미읽음 건수(현재 목록 기준) — 범례 숫자·전체 읽음 버튼 활성 여부
 const unreadNew = computed(() => items.value.filter((r) => r.unread === 'new').length);
 const unreadUpdated = computed(() => items.value.filter((r) => r.unread === 'updated').length);
 function toggleStatus(s: string) { const i = f.value.status.indexOf(s); if (i >= 0) f.value.status.splice(i, 1); else f.value.status.push(s); }
 const groupOpts = computed(() => [
   ...groups.map((g) => ({ value: g.key, label: g.label, count: counts.value[g.key] })),
-  { value: 'all', label: '전체', count: items.value.length },
+  { value: 'all', label: '전체', count: total.value },
 ]);
 const group = computed<string | null>({
   get: () => !f.value.status.length ? 'all' : (groups.find((g) => g.statuses.length === f.value.status.length && g.statuses.every((s) => f.value.status.includes(s)))?.key ?? null),

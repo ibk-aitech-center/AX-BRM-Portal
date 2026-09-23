@@ -97,7 +97,8 @@ function roleScopes(user) {
 requestsRouter.get('/', async (req, res) => {
   const q = req.query;
   const { scope, where, params } = scopeWhere(q.scope, req.user);
-  if (q.status) { const list = String(q.status).split(','); where.push(`r.status IN (${list.map(() => '?').join(',')})`); params.push(...list); }
+  // 상태 묶음 버튼 숫자용 — 상태 조건만 뺀 나머지 조건(부서·담당자·검색어·기간·지원 유형)으로 센 상태별 건수.
+  // 목록은 상태로 걸러도 버튼 숫자는 고정돼야 해서 상태 절을 넣기 전의 where 를 따로 잡아 둔다 (2026-09-23)
   if (q.org) { where.push('r.requester_org_nm = ?'); params.push(String(q.org)); }
   if (q.channel) { where.push('r.channel = ?'); params.push(String(q.channel)); }
   // AX-BRM 담당자 — 사번, 또는 'none'(미지정)
@@ -106,6 +107,8 @@ requestsRouter.get('/', async (req, res) => {
   if (q.from) { where.push('r.submitted_at >= ?'); params.push(String(q.from)); }
   if (q.to) { where.push('r.submitted_at < ?'); params.push(String(q.to)); }
   if (q.q) { where.push('(r.title LIKE ? OR r.req_no LIKE ? OR r.requester_name LIKE ?)'); const like = `%${String(q.q)}%`; params.push(like, like, like); }
+  const baseWhere = [...where]; const baseParams = [...params]; // 상태 절은 맨 마지막에 — 그 직전 상태를 건수 집계에 쓴다
+  if (q.status) { const list = String(q.status).split(','); where.push(`r.status IN (${list.map(() => '?').join(',')})`); params.push(...list); }
 
   // 역할 scope 는 내 열람 기록을 같이 읽어 미읽음(new·updated)을 판정한다 (server/unread.js). mine 은 표시하지 않는다
   const withReads = scope !== 'mine';
@@ -118,7 +121,21 @@ requestsRouter.get('/', async (req, res) => {
   const overrides = await loadOverrides(db, rows.map((r) => r.id));
   let list = rows.map((r) => ({ ...toRequest(r, { override: overrides.get(r.id) ?? null }), ...(withReads ? { unread: unreadState(r, r.my_read_at) } : {}) }));
   if (q.track) list = list.filter((r) => r.judgement?.track === q.track);
-  res.json({ items: list });
+
+  // 상태별 건수 — 상태 조건 제외. 지원 유형 필터는 유효 판정(조정 반영) 기준이라 SQL 로 못 세고 행을 받아 센다
+  const statusCounts = {};
+  if (!q.status && !q.track) {
+    for (const r of list) statusCounts[r.status] = (statusCounts[r.status] || 0) + 1;
+  } else {
+    const all = await db.all(`SELECT r.* FROM requests r ${baseWhere.length ? 'WHERE ' + baseWhere.join(' AND ') : ''}`, baseParams);
+    let pool = all;
+    if (q.track) {
+      const ov = await loadOverrides(db, all.map((r) => r.id));
+      pool = all.filter((r) => toRequest(r, { override: ov.get(r.id) ?? null }).judgement?.track === q.track);
+    }
+    for (const r of pool) statusCounts[r.status] = (statusCounts[r.status] || 0) + 1;
+  }
+  res.json({ items: list, statusCounts });
 });
 
 // ── 미읽음 (server/unread.js) ───────────────────────────────────

@@ -53,11 +53,13 @@ function move(from: Box | null, to: Box | null) {
     : [{ ...px(from), easing: 'cubic-bezier(.16,1,.3,1)' }, px(to)];
   t.style.opacity = '1';
   anim = t.animate(frames, { duration: sameRow ? 480 : 360, fill: 'forwards' });
-  anim.onfinish = () => { place(to); anim?.cancel(); anim = null; };
+  anim.onfinish = () => { anim?.cancel(); anim = null; prev = box(props.modelValue); place(prev); }; // 도착 뒤 실제 폭으로 다시 맞춤 — 이동 중 숫자가 바뀌어도 어긋나지 않게
 }
 
 let prev: Box | null = null;
 watch(() => props.modelValue, async (nv) => { await nextTick(); const to = box(nv); move(prev, to); prev = to; });
+// 항목 라벨·숫자가 바뀌면 버튼 폭이 달라져 필이 글자 가운데에서 어긋난다 — 조용히 다시 맞춘다 (2026-09-23)
+watch(() => props.options.map((o) => `${o.label}|${o.count ?? ''}`).join(','), async () => { await nextTick(); if (anim) return; prev = box(props.modelValue); place(prev); });
 onMounted(async () => {
   await nextTick(); prev = box(props.modelValue); place(prev);
   if (typeof ResizeObserver !== 'undefined' && root.value) { ro = new ResizeObserver(() => { prev = box(props.modelValue); place(prev); }); ro.observe(root.value); }
