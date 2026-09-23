@@ -72,14 +72,14 @@ statsRouter.get('/', async (req, res) => {
   for (const r of reviews) if (!firstReview.has(r.request_id)) firstReview.set(r.request_id, r.created_at);
   const doneAt = new Map();
   for (const h of history) if (h.to_status === 'done' && !doneAt.has(h.request_id)) doneAt.set(h.request_id, h.changed_at);
-  // 종결 시각(반려·완료·안내 종결로 처음 바뀐 때) — 의견 없이 끝난 건의 "첫 의견까지" 상한. 이력이 없으면 마지막 갱신 시각으로
+  // 종결 시각(협의 종결·완료·안내 종결로 처음 바뀐 때) — 의견 없이 끝난 건의 "첫 의견까지" 상한. 이력이 없으면 마지막 갱신 시각으로
   const closedAt = new Map();
   for (const h of history) if (CLOSED_STATUSES.has(h.to_status) && !closedAt.has(h.request_id)) closedAt.set(h.request_id, h.changed_at);
   /** 첫 의견까지의 끝점 — 의견이 있으면 그 시각, 없는데 종결됐으면 종결 시각, 아니면 오늘 */
   const firstReviewEnd = (r) => firstReview.get(r.id) ?? (CLOSED_STATUSES.has(r.status) ? (closedAt.get(r.id) ?? r.closed_at ?? r.updated_at) : nowIso);
 
-  // 진행 중 = 상태 구성 패널의 '진행 중' 묶음과 같은 정의(신청 완료·검토 중·보완 요청·진행 확정·개발 중). 반려만 stalled 로 따로 —
-  // 접수 = 진행 중 + 완료·종결 + 반려 가 항상 맞아떨어지게 (2026-09-08 정합성 점검 · 2026-09-11 보완 요청을 진행 중으로)
+  // 진행 중 = 상태 구성 패널의 '진행 중' 묶음과 같은 정의(신청 완료·검토 중·보완 요청·진행 확정·개발 중). 협의 종결만 stalled 로 따로 —
+  // 접수 = 진행 중 + 완료·종결 + 협의 종결 이 항상 맞아떨어지게 (2026-09-08 정합성 점검 · 2026-09-11 보완 요청을 진행 중으로)
   const open = rows.filter((r) => ['submitted', 'reviewing', 'hold', 'accepted', 'developing'].includes(r.status)).length;
   const stalled = rows.filter((r) => r.status === 'rejected').length;
   const byMonth = count(rows, (r) => r.submitted_at.slice(0, 7)).sort((a, b) => a.key.localeCompare(b.key));
@@ -99,7 +99,7 @@ statsRouter.get('/', async (req, res) => {
     },
     byMonth,
     byStatus: count(rows, (r) => r.status).map((x) => ({ ...x, label: STATUS[x.key]?.label || x.key })),
-    // 부서별: 건수에 진행 상황(대기·진행·완료종결·보류반려)을 함께 — 부서 관리자가 "우리 부서 건이 어디까지 왔나"를 읽도록
+    // 부서별: 건수에 진행 상황(대기·진행·완료종결·보류·협의 종결)을 함께 — 부서 관리자가 "우리 부서 건이 어디까지 왔나"를 읽도록
     byOrg: count(rows, (r) => r.requester_org_nm).map((x) => {
       const rs = rows.filter((r) => (r.requester_org_nm ?? '(미정)') === x.key);
       return { ...x, ...progress(rs) };

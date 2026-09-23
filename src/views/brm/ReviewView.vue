@@ -45,7 +45,7 @@ const closureChanged = computed(() => {
 });
 
 // 단계 이동 스테퍼 — 전체 경로에서 현재 위치와 이동 가능한 단계를 한눈에 보여준다.
-// (보류·반려는 검토 "결정"으로 가는 곁가지라 경로에 그리지 않고 배지로 표시)
+// (보류·협의 종결은 검토 "결정"으로 가는 곁가지라 경로에 그리지 않고 배지로 표시)
 const MAIN_PATH = ['submitted', 'reviewing', 'accepted', 'developing', 'done'];
 const pathIdx = computed(() => MAIN_PATH.indexOf(d.value?.request.status || ''));
 const offPath = computed(() => !!d.value && d.value.request.status !== 'draft' && pathIdx.value < 0);
@@ -162,7 +162,7 @@ async function saveAssignee() {
 }
 
 async function submitReview() {
-  if (!form.opinion.trim()) { toast('의견을 적어주세요.', 'warning'); return; }
+  if (!form.opinion.trim()) { toast(form.decision === 'reject' ? '협의 종결 사유를 적어주세요.' : '의견을 적어주세요.', 'warning'); return; }
   busy.value = true;
   try {
     const override = form.override ? { track: form.track, dataCase: form.dataCase || null, integration: form.integration || null } : null;
@@ -279,7 +279,7 @@ async function confirmDelete() {
               <span v-else class="rv-step"><span class="rv-dot" aria-hidden="true"></span>{{ S[st].label }}<span v-if="st === d.request.status" class="rv-here">지금</span></span>
             </li>
           </ol>
-          <span class="text-xs text-muted">{{ (MT[d.request.status] || []).length ? '점선 단계를 누르면 이동해요 · ' : '' }}승인·보완 요청·반려 같은 검토 결정은 오른쪽 "검토 의견 등록"에서 해요</span>
+          <span class="text-xs text-muted">{{ (MT[d.request.status] || []).length ? '점선 단계를 누르면 이동해요 · ' : '' }}승인·보완 요청·협의 종결 같은 검토 결정은 오른쪽 "검토 의견 등록"에서 해요</span>
         </div>
       </header>
 
@@ -393,7 +393,7 @@ async function confirmDelete() {
                 <p class="hint">아직 확신이 없으면 "검토 중" 그대로 두셔도 돼요.</p>
               </div>
               <div class="field"><label for="approach" class="label">진행 방식 (요청자에게 보여요)</label><input id="approach" v-model="form.approach" class="input" placeholder="예) 모양만 같은 데이터로 행외 개발 → AI-HUB 배포 · BDP 일배치 연계" /></div>
-              <div class="field"><label for="opinion" class="label">의견 (필수 · 요청자에게 보여요)</label><textarea id="opinion" v-model="form.opinion" class="textarea" rows="5" placeholder="쉬운 말로. 어렵더라도 이유와 대안을 함께 적어주세요."></textarea></div>
+              <div class="field"><label for="opinion" class="label">{{ form.decision === 'reject' ? '협의 종결 사유 (필수 · 요청자에게 보여요)' : '의견 (필수 · 요청자에게 보여요)' }}</label><textarea id="opinion" v-model="form.opinion" class="textarea" rows="5" placeholder="쉬운 말로. 어렵더라도 이유와 대안을 함께 적어주세요."></textarea></div>
               <div class="field"><span class="label">BRM 개발 예상 기간(주) — 요건 확정 후 기준 (요청자에게 보여요 · 미정이면 비워두세요)</span>
                 <div class="row wrap"><input v-model="form.min" type="number" min="0" class="input" style="width:90px;min-height:40px;padding:8px" aria-label="최소 주" placeholder="최소" /> ~ <input v-model="form.max" type="number" min="0" class="input" style="width:90px;min-height:40px;padding:8px" aria-label="최대 주" placeholder="최대" /></div>
               </div>
@@ -452,7 +452,7 @@ async function confirmDelete() {
 
       <AppModal v-if="deleteOpen" title="접수 삭제 · 되돌릴 수 없어요" @close="deleteOpen = false">
         <p class="text-sm"><b>{{ d.request.reqNo }}</b> · {{ d.request.title }}<br /><span class="text-muted">{{ d.request.requester.orgNm }} {{ d.request.requester.name }} · {{ S[d.request.status].label }}</span></p>
-        <p class="text-sm mt-md">잘못 접수됐거나 테스트로 들어온 건을 접수함에서 완전히 지우는 관리자 기능이에요. 의견 {{ d.reviews.length }}건, 이력 {{ d.history.length }}건, 첨부 {{ d.attachments.length }}건, 대화 {{ d.comments.length }}건이 함께 삭제되고 요청자 화면과 통계에서도 사라져요. <b>되돌릴 수 없어요.</b> 정상 접수된 건은 삭제 대신 "반려"로 종결해 주세요.</p>
+        <p class="text-sm mt-md">잘못 접수됐거나 테스트로 들어온 건을 접수함에서 완전히 지우는 관리자 기능이에요. 의견 {{ d.reviews.length }}건, 이력 {{ d.history.length }}건, 첨부 {{ d.attachments.length }}건, 대화 {{ d.comments.length }}건이 함께 삭제되고 요청자 화면과 통계에서도 사라져요. <b>되돌릴 수 없어요.</b> 정상 접수된 건은 삭제 대신 "협의 종결"로 종결해 주세요.</p>
         <div class="field mt-md"><label for="delconfirm" class="label">확인을 위해 접수번호를 그대로 입력해 주세요</label><input id="delconfirm" v-model="deleteConfirm" class="input" :placeholder="d.request.reqNo || ''" autocomplete="off" data-testid="delete-confirm" @keydown.enter="confirmDelete" /></div>
         <template #foot><button class="btn btn-ghost" @click="deleteOpen = false">취소</button><SubmitButton :state="deleteState" :disabled="!deleteReady" class="rv-del-btn" data-testid="delete-submit" @click="confirmDelete">영구 삭제</SubmitButton></template>
       </AppModal>

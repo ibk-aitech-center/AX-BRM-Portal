@@ -264,7 +264,7 @@ requestsRouter.get('/:id', async (req, res) => {
 /**
  * 초안: 작성자 본인. 신청된 건: **시스템 관리자만** (2026-09-08) — 잘못 접수됐거나 테스트로 넣은 건을 접수함에서 완전히 지운다.
  * 되돌릴 수 없으므로 의견·이력·첨부(파일 포함)·대화까지 함께 지우고, 서버 로그에 누가 무엇을 지웠는지 남긴다.
- * 요청자·AX-BRM 은 신청된 건을 지울 수 없다 — 잘못된 건은 반려로 종결한다.
+ * 요청자·AX-BRM 은 신청된 건을 지울 수 없다 — 잘못된 건은 협의 종결로 종결한다.
  */
 requestsRouter.delete('/:id', async (req, res) => {
   const row = await db.get('SELECT * FROM requests WHERE id = ?', [req.params.id]);

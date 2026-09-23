@@ -12,7 +12,7 @@ export const STATUS = {
   hold: { label: '보완 요청', tone: 'warning', desc: '보완 요청 통보 · 요청자가 보완하면 재검토 (공은 요청자에게)', requesterDesc: '몇 가지 확인이 더 필요해요. 아래 의견을 확인해 주세요.' },
   accepted: { label: '진행 확정', tone: 'success', desc: '과제 확정 · 착수 승인', requesterDesc: '진행이 확정됐어요! 다음 단계를 함께 준비해요.' },
   guided: { label: '행내 도구 안내로 종결', tone: 'success', desc: 'GENI·알대리 이용 안내 후 종료 (과거 건 표시용 — 새로 만들어지지 않음)', requesterDesc: '이미 있는 행내 도구로 해결할 수 있어요. 아래 안내를 확인해 주세요.' },
-  rejected: { label: '반려', tone: 'danger', desc: '진행 불가 통보', requesterDesc: '아쉽지만 이번에는 진행이 어려워요. 사유를 확인해 주세요.' },
+  rejected: { label: '협의 종결', tone: 'neutral', desc: '개발 없이 협의·안내로 마무리 (방향성 안내 등)', requesterDesc: '별도 개발 없이 협의로 마무리됐어요. 아래 안내 내용을 확인해 주세요.' },
   developing: { label: '개발 중', tone: 'brand', desc: '행외 개발 · 연계 협의 진행', requesterDesc: '함께 만들고 있어요.' },
   done: { label: '완료', tone: 'success', desc: '오픈 완료', requesterDesc: '완성됐어요! 수고 많으셨어요.' },
 };
@@ -26,7 +26,7 @@ export const STATUS_ORDER = ['draft', 'submitted', 'reviewing', 'hold', 'accepte
 export const DECISION = {
   accept: { label: '진행 확정 (착수 승인)', to: 'accepted' },
   hold: { label: '보완 요청', to: 'hold' },
-  reject: { label: '반려', to: 'rejected' },
+  reject: { label: '협의 종결', to: 'rejected' },
   note: { label: '의견만 등록 (상태 유지)', to: null },
 };
 

@@ -48,7 +48,7 @@ const grouped = computed(() => {
 });
 const noticeLevel = computed(() => {
   const st = d.value?.request.status || '';
-  return ['hold', 'rejected'].includes(st) ? 'warn' : ['accepted', 'done', 'guided', 'developing'].includes(st) ? 'success' : 'info';
+  return st === 'hold' ? 'warn' : ['accepted', 'done', 'guided', 'developing', 'rejected'].includes(st) ? 'success' : 'info';
 });
 
 async function download(a: Attachment) {

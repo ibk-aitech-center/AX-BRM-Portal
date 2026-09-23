@@ -38,7 +38,7 @@ export interface AssigneeCandidate { employeeNo: string; name: string | null; po
 export interface RequestDetail { request: RequestFull; reviews: Review[]; history: HistoryItem[]; attachments: Attachment[]; comments: Comment[] }
 
 export interface StatBucket { key: string; n: number; label?: string }
-/** 부서별 버킷 — 건수 + 진행 상황 분해(대기 / 진행(보완 요청 포함) / 완료·종결 / 반려) */
+/** 부서별 버킷 — 건수 + 진행 상황 분해(대기 / 진행(보완 요청 포함) / 완료·종결 / 협의 종결) */
 export interface OrgBucket extends StatBucket { awaiting: number; active: number; closed: number; stalled: number }
 /** 담당자별 버킷 — key 는 사번(미지정 묶음은 'none'), 완료 건수·목업 제공 건수·평균 완료 소요일 */
 export interface AssigneeBucket extends OrgBucket { name: string; position: string | null; done: number; mockups: number; avgDoneDays: number | null }

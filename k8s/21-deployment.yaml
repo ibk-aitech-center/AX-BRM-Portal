@@ -16,7 +16,7 @@ spec:
       # imagePullSecrets: [{ name: <registry-secret> }]
       containers:
         - name: app
-          image: <registry>/ai-brm:1.4       # 재배포 시 태그만 갱신
+          image: <registry>/ai-brm:1.5       # 재배포 시 태그만 갱신
           imagePullPolicy: IfNotPresent
           # 플랫폼 템플릿이 args: ["/app/start.sh"] 를 넣어도 되고, 비워 두면 이미지 CMD 가 같은 스크립트를 부른다
           ports: [{ name: http, containerPort: 80 }]

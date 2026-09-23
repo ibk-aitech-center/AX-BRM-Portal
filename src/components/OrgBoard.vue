@@ -2,9 +2,9 @@
 /**
  * 요청 부서별 현황 — 본부부서가 70여 개라 "다 보이면서도 조잡하지 않게"가 목표.
  *  · 상단 요약: 참여 부서 수, 상위 3개 부서 집중도(전체의 %), 아직 신청이 없는 부서 수(전체 부서 수를 알 때만)
- *  · 보기 전환(세그먼트): [상위 10] 진행 상황이 쪼개진 가로 누적 막대 — 대기·진행·완료종결·보류반려
+ *  · 보기 전환(세그먼트): [상위 10] 진행 상황이 쪼개진 가로 누적 막대 — 대기·진행·완료종결·보류·협의 종결
  *                        [전체]   부서 타일 그리드(건수 내림차순, 이름 검색) — 타일마다 건수와 완료 비율 띠
- *  · 색: 브랜드 1색의 진하기로 진행 단계(대기 옅음 → 완료 짙음), 보류·반려만 회색. 텍스트는 텍스트 토큰.
+ *  · 색: 브랜드 1색의 진하기로 진행 단계(대기 옅음 → 완료 짙음), 보류·협의 종결만 회색. 텍스트는 텍스트 토큰.
  */
 import { ref, computed } from 'vue';
 import type { OrgBucket } from '@/types';
@@ -30,7 +30,7 @@ const SEGS: { k: keyof OrgBucket; label: string; c: string }[] = [
   { k: 'closed', label: '완료·종결', c: 'var(--brand-500)' },
   { k: 'active', label: '진행 중', c: 'var(--brand-300)' },
   { k: 'awaiting', label: '검토 대기', c: 'var(--brand-100)' },
-  { k: 'stalled', label: '반려', c: 'var(--ink-300)' },
+  { k: 'stalled', label: '협의 종결', c: 'var(--ink-300)' },
 ];
 const segTitle = (o: OrgBucket) => SEGS.map((s) => `${s.label} ${o[s.k]}`).join(' · ');
 </script>

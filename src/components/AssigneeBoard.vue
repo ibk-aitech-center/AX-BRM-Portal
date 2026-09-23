@@ -29,7 +29,7 @@ const SEGS: { k: 'closed' | 'active' | 'awaiting' | 'stalled'; label: string; c:
   { k: 'closed', label: '완료·종결', c: 'var(--brand-500)' },
   { k: 'active', label: '진행 중', c: 'var(--brand-300)' },
   { k: 'awaiting', label: '검토 대기', c: 'var(--brand-100)' },
-  { k: 'stalled', label: '반려', c: 'var(--ink-300)' },
+  { k: 'stalled', label: '협의 종결', c: 'var(--ink-300)' },
 ];
 const segTitle = (a: AssigneeBucket) => SEGS.map((s) => `${s.label} ${a[s.k]}`).join(' · ');
 const label = (a: AssigneeBucket) => (a.position ? `${a.name} ${a.position}` : a.name);

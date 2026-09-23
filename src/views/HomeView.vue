@@ -48,9 +48,9 @@ const NOW: Record<string, { now: string; hint: string }> = {
   developing: { now: '함께 만들고 있어요.', hint: '진행 상황과 목업은 요청 상세에서 확인할 수 있어요.' },
   done: { now: '완성됐어요! 수고 많으셨어요.', hint: '새로운 아이디어가 생기면 언제든 다시 상담해 주세요.' },
   guided: { now: '이미 있는 행내 도구로 해결할 수 있어요.', hint: '안내받은 도구(GENI·알대리) 이용 방법을 상세에서 확인해 주세요.' },
-  rejected: { now: '아쉽지만 이번에는 진행이 어려워요.', hint: '사유를 확인하고, 다른 아이디어로 다시 상담할 수 있어요.' },
+  rejected: { now: '별도 개발 없이 협의로 마무리됐어요.', hint: '안내 내용을 확인하고, 다른 아이디어로 다시 상담할 수 있어요.' },
 };
-/** 종결 상태(안내 종결·반려)는 상태 배지가 이미 결론을 말하므로 진행 단계 줄을 겹쳐 그리지 않는다 */
+/** 종결 상태(안내 종결·협의 종결)는 상태 배지가 이미 결론을 말하므로 진행 단계 줄을 겹쳐 그리지 않는다 */
 const isTerminal = (status: string) => status === 'guided' || status === 'rejected';
 /** 카드에 곁들일 핵심 사실 — 진행 방식 · 데이터 방식 · 예상 기간(진행 중인 건만). 판정이 없으면 빈 배열 */
 function factsOf(r: RequestSummary): { k: string; v: string }[] {

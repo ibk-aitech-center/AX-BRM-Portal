@@ -225,7 +225,7 @@ requests         (id PK, req_no UNIQUE  -- 'BRM-2026-0001'
                   , questionnaire_version, answers JSONB, judgement JSONB  -- 자동 판정 결과 스냅샷
                   , submitted_at, created_at, updated_at)
 request_reviews  (id PK, request_id FK, reviewer_employee_no FK
-                  , decision  -- 접수진행|보완요청|보류|AI활용안내|반려
+                  , decision  -- 접수진행|보완요청|보류|AI활용안내|협의 종결
                   , feasible  -- 가능|조건부|불가|검토중
                   , approach TEXT, opinion TEXT, estimated_weeks_min, estimated_weeks_max
                   , judgement_override JSONB  -- BRM이 자동 판정을 수정한 값
@@ -237,7 +237,7 @@ attachments      (id PK, request_id FK, kind  -- mockup|reference|other
 comments         (id PK, request_id FK, author_employee_no, body, created_at)  -- 요청자↔BRM 문의 (Phase 2)
 ```
 
-상태 흐름: `draft(작성중) → submitted(신청완료) → reviewing(검토중) → {hold(보류/보완요청) | accepted(진행확정) | guided(사내도구 안내로 종결) | rejected(반려)} → developing(개발중) → done(완료)` — 컨셉 목업 단계는 폐지(2026-09-03): 목업은 필수 절차가 아니라 필요시 첨부로만 등록한다
+상태 흐름: `draft(작성중) → submitted(신청완료) → reviewing(검토중) → {hold(보류/보완요청) | accepted(진행확정) | guided(사내도구 안내로 종결) | rejected(협의 종결)} → developing(개발중) → done(완료)` — 컨셉 목업 단계는 폐지(2026-09-03): 목업은 필수 절차가 아니라 필요시 첨부로만 등록한다
 
 통계 축: 요청일자(일/주/월), 요청부서(org_cd), 요청자, 채널, 지원 갈래, 상태, 데이터 케이스, 배포지, 평균 처리 기간(submitted→첫 review, → done). CSV 내려받기 포함.
 
@@ -375,7 +375,7 @@ GET  /api/stats/export.csv
              │
              ├─ ⏸ 보류·보완 요청  (② 에서 멈춤, 보완되면 ② 로 복귀)
              ├─ ✅ 사내 도구 안내로 종결 (기성복 — ③ 대신 종결)
-             └─ ⛔ 반려
+             └─ ⛔ 협의 종결
 ```
 
 화면: 카드·목록·상세 헤더에 `ProgressSteps` 컴포넌트(점 6개 + 완료 체크 + 현재 강조 + 보류 ⏸). 종결 2종은 주 경로 밖의 뱃지로.
@@ -385,7 +385,7 @@ GET  /api/stats/export.csv
 | 현재 → 다음 | 전이 조건(플래그) | 누가 세우나 | 방식 |
 |---|---|---|---|
 | ① 신청 → ② 검토 | `review.opened` — BRM이 검토 화면에서 요청을 처음 열었을 때 | 시스템(BRM 열람 시 자동 기록) | 자동 |
-| ② 검토 → ③ 확정 / ⏸ 보류 / ✅ 종결 / ⛔ 반려 | `review.decision` — 검토 의견의 결정값 | BRM(의견 등록) | 자동(현행) |
+| ② 검토 → ③ 확정 / ⏸ 보류 / ✅ 종결 / ⛔ 협의 종결 | `review.decision` — 검토 의견의 결정값 | BRM(의견 등록) | 자동(현행) |
 | ⏸ 보류 → ② 검토 | `hold.resolved` — 요청자가 보완 답변(코멘트 또는 참고자료 업로드)을 남기면 | 요청자 행동 | 자동 |
 | ③ 확정 → ⑤ 개발 | 수동 전이 유지 — 컨셉 목업 **단계 폐지**(2026-09-03): 목업은 필요시 첨부로만. `mockup.*` 플래그 설계는 목업 첨부의 확인·수정요청 UX로만 재활용 검토 | BRM | 수동 |
 | ⑤ 개발 → ⑥ 완료 | 체크리스트 3개 모두 ✔ — `dev.data_linked`(데이터 연계 확정) · `dev.imported`(반입·보안 점검 완료) · `dev.opened`(오픈) | BRM(체크) | 마지막 체크 시 자동 |

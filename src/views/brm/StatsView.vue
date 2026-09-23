@@ -33,8 +33,8 @@ import type { TipSection } from '@/components/InfoTip.vue';
 const FIRST_REVIEW_RULES: readonly TipSection[] = [
   { label: '들어가는 건', text: '접수된 모든 요청이 한 번씩 들어가요. 요청마다 아래 셋 중 끝점 하나를 고릅니다.' },
   { label: '신청일부터 어디까지 세나', steps: [
-    { k: '검토 의견이 있으면', v: '첫 의견 등록일까지. 그 뒤의 의견·반려·완료는 세지 않아요.' },
-    { k: '의견 없이 반려·완료됐으면', v: '종결된 날까지.' },
+    { k: '검토 의견이 있으면', v: '첫 의견 등록일까지. 그 뒤의 의견·협의 종결·완료는 세지 않아요.' },
+    { k: '의견 없이 협의 종결·완료됐으면', v: '종결된 날까지.' },
     { k: '의견 없이 진행 중이면', v: '오늘까지. 의견이 달릴 때까지 매일 하루씩 늘어요.' },
   ] },
   { label: '일수 계산', text: '달력 기준이에요. 당일 처리 1일, 다음 날 2일. 시각 차이는 세지 않아요.' },
@@ -103,7 +103,7 @@ const months = computed<StatBucket[]>(() => {
 });
 const closedOf = (s: Stats) => s.totals.done + s.totals.guided;
 const statusN = (s: Stats, key: string) => s.byStatus.find((b) => b.key === key)?.n ?? 0;
-/** '현재 진행 중' 인사이트의 상태 묶음 — 검토 대기(submitted)도, 완료·반려·종결도 아닌 건.
+/** '현재 진행 중' 인사이트의 상태 묶음 — 검토 대기(submitted)도, 완료·종결·협의 종결도 아닌 건.
  *  프로세스: 요청 → 검토 → (필요시) 보완 요청 → 확정 → 개발 중 → 완료. 보완 요청은 검토 단계의 하나라 진행 중에 들어간다 (2026-09-11).
  *  접수함 '진행 중' 묶음과 같은 정의(KPI '진행 중'은 여기에 검토 대기를 더한 수). 접수함 링크(?status=)와 문구가 이 목록 하나를 같이 쓴다 */
 const IN_PROGRESS_STATUSES = ['reviewing', 'hold', 'accepted', 'developing'] as const;
@@ -131,11 +131,11 @@ const kpis = computed(() => {
   const p = prev.value?.totals;
   return [
     { l: '접수', v: s.totals.submitted, u: '건', sub: p ? `이전 기간 ${p.submitted}건` : '기간 안에 신청된 요청', delta: delta(s.totals.submitted, p?.submitted), spark: true },
-    // 진행 중은 상태 구성의 '진행 중' 묶음과 같은 수(보완 요청 포함). 반려는 별도라고 밝혀 접수 = 진행 중 + 완료·종결 + 반려 가 읽히게
+    // 진행 중은 상태 구성의 '진행 중' 묶음과 같은 수(보완 요청 포함). 협의 종결은 별도라고 밝혀 접수 = 진행 중 + 완료·종결 + 협의 종결 이 읽히게
     { l: '진행 중', v: s.totals.open, u: '건', sub: openSub(s), delta: delta(s.totals.open, p?.open), warn: s.totals.awaiting > 0 },
     { l: '완료·종결', v: closedOf(s), u: '건', sub: s.totals.submitted ? `접수의 ${pct(closedOf(s), s.totals.submitted)}%` : '–', delta: delta(closedOf(s), p ? closedOf(prev.value!) : null) },
-    // 반려를 타일로 — 접수 = 진행 중 + 완료·종결 + 반려 가 타일 넷으로 바로 맞아떨어진다 (2026-09-08, 5장 구성 · 2026-09-11 보완 요청은 진행 중으로)
-    { l: '반려', v: s.totals.stalled, u: '건', sub: s.totals.submitted ? `접수의 ${pct(s.totals.stalled, s.totals.submitted)}%` : '반려 없음', delta: delta(s.totals.stalled, p?.stalled), lowerBetter: true },
+    // 협의 종결을 타일로 — 접수 = 진행 중 + 완료·종결 + 협의 종결 이 타일 넷으로 바로 맞아떨어진다 (2026-09-08, 5장 구성 · 2026-09-11 보완 요청은 진행 중으로)
+    { l: '협의 종결', v: s.totals.stalled, u: '건', sub: s.totals.submitted ? `접수의 ${pct(s.totals.stalled, s.totals.submitted)}%` : '협의 종결 없음', delta: delta(s.totals.stalled, p?.stalled), lowerBetter: true },
     // 보조 문구는 이 지표의 모수만 — "완료까지 평균"은 담당자별 처리 현황의 지표라 여기 섞지 않는다 (2026-09-11)
     { l: '첫 의견까지', v: s.totals.avgFirstReviewDays, u: '일', sub: s.totals.submitted ? `접수 ${s.totals.submitted}건 전체 기준` : '접수된 요청 없음', delta: delta(s.totals.avgFirstReviewDays, p?.avgFirstReviewDays, '일'), lowerBetter: true, info: FIRST_REVIEW_RULES },
   ];
